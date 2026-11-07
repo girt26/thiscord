@@ -926,6 +926,24 @@
         const ADMIN_PW_HASH = '2xgDWXnUtdoB945y1b9WDYg7FnzbLxtDHJYPptIw5EI=';
         const ADMIN_PW_ITERATIONS = 1000000;
 
+        // Only the palette offered by the picker (plus the admin gradient) may
+        // reach a class attribute. Stored values are untrusted: messages can be
+        // inserted straight through the API, bypassing this UI entirely.
+        const AVATAR_COLOR_CLASSES = new Set([
+            'bg-indigo-600',
+            'bg-teal-500',
+            'bg-emerald-600',
+            'bg-rose-600',
+            'bg-cyan-600',
+            'bg-purple-600',
+            'bg-gradient-to-tr from-teal-500 to-teal-300 text-black'
+        ]);
+        const DEFAULT_AVATAR_COLOR = 'bg-indigo-600';
+
+        function safeAvatarColor(value) {
+            return AVATAR_COLOR_CLASSES.has(value) ? value : DEFAULT_AVATAR_COLOR;
+        }
+
         function b64ToBytes(b64) {
             const bin = atob(b64);
             const out = new Uint8Array(bin.length);
@@ -1185,7 +1203,7 @@
 
         let currentChannel = appState.channels[0] || 'secret-lounge';
         let activeChatUsername = localStorage.getItem('alec_chat_user') || '';
-        let activeAvatarColor = localStorage.getItem('alec_chat_color') || 'bg-indigo-600';
+        let activeAvatarColor = safeAvatarColor(localStorage.getItem('alec_chat_color'));
         let isUserAdmin = false;
         let pendingReply = null;
         let isAudioMuted = localStorage.getItem('alec_chat_muted') === 'true';
@@ -1299,7 +1317,7 @@
                 id: String(row.id),
                 channel: row.channel_id,
                 user: row.sender_name || 'Unknown',
-                avatarColor: row.avatar_color || 'bg-indigo-600',
+                avatarColor: safeAvatarColor(row.avatar_color),
                 badge: row.badge || 'MEMBER',
                 content: row.content || '',
                 timestamp: ts,
@@ -1331,7 +1349,7 @@
                 id: String(message.id),
                 channel_id: String(message.channel || currentChannel),
                 sender_name: String(message.user || activeChatUsername || 'Unknown'),
-                avatar_color: message.avatarColor || 'bg-indigo-600',
+                avatar_color: safeAvatarColor(message.avatarColor),
                 badge: message.badge || 'MEMBER',
                 content: String(message.content || ''),
                 image_url: message.imageUrl || null,
@@ -1753,7 +1771,7 @@
             return {
                 id: String(row.id),
                 user: String(row.sender_name || row.sender || 'Unknown'),
-                avatarColor: row.avatar_color || 'bg-indigo-600',
+                avatarColor: safeAvatarColor(row.avatar_color),
                 badge: row.badge || 'MEMBER',
                 content: typeof row.content === 'string' ? row.content : '',
                 timestamp: ts,
@@ -2962,7 +2980,8 @@
                         + (m._pending ? ' chat-message-pending' : '')
                         + (m._failed ? ' chat-message-failed' : '');
                     item.setAttribute('data-message-id', String(m.id == null ? '' : m.id));
-                    const initial = (m.user||'A').charAt(0).toUpperCase();
+                    const initial = escapeHtml((m.user||'A').charAt(0).toUpperCase());
+                    const avatarColor = safeAvatarColor(m.avatarColor);
                     const hasMessageId = m.id !== undefined && m.id !== null && String(m.id) !== '';
                     const copyIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16H340.1c4.2 0 8.3 1.7 11.3 4.7l54.9 54.9c3 3 4.7 7.1 4.7 11.3V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V118.6c0-17-6.7-33.3-18.7-45.3L374.6 18.7C362.6 6.7 346.3 0 329.4 0H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128C28.7 128 0 156.7 0 192V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V416H336v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"/></svg>';
                     const linkIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 6.2c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-6.2-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-6.2c-31.5-31.5-31.5-82.5 0-114L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 6.2 103.8l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z"/></svg>';
@@ -3006,7 +3025,7 @@
                         statusHtml = '<span class="chat-message-status">sending…</span>';
                     }
                     item.innerHTML = `
-                        <div class="w-10 h-10 rounded-full ${m.avatarColor||'bg-indigo-600'} flex items-center justify-center font-bold text-white shrink-0 shadow-md">${initial}</div>
+                        <div class="w-10 h-10 rounded-full ${avatarColor} flex items-center justify-center font-bold text-white shrink-0 shadow-md">${initial}</div>
                         <div class="flex-grow space-y-1 overflow-hidden">
                             <div class="flex items-center justify-between gap-2">
                                 <div class="flex items-center gap-2 min-w-0 flex-1">
@@ -4130,8 +4149,8 @@
         // CHAT UI CONTROLS
         // ==========================================
         window.selectAvatarColor = function(colorClass, btn) {
-            activeAvatarColor = colorClass;
-            localStorage.setItem('alec_chat_color', colorClass);
+            activeAvatarColor = safeAvatarColor(colorClass);
+            localStorage.setItem('alec_chat_color', activeAvatarColor);
             document.querySelectorAll('#avatarColorPicker button').forEach(b => {
                 b.className = b.className.replace(/ring-2 ring-white ring-offset-2 ring-offset-\[#313338\]/g,'').trim();
             });
@@ -4684,7 +4703,7 @@
                 id: String(message.id),
                 conversation_id: String(conversationId),
                 sender_name: String(message.user || activeChatUsername),
-                avatar_color: message.avatarColor || 'bg-indigo-600',
+                avatar_color: safeAvatarColor(message.avatarColor),
                 badge: message.badge || 'MEMBER',
                 content: String(message.content || ''),
                 image_url: message.imageUrl || null,
