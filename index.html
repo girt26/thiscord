@@ -901,8 +901,6 @@
         const CHAT_CHANNELS_TABLE = 'chat_channels';
         const CHAT_MESSAGES_TABLE = 'chat_messages';
         const CHAT_PROFILES_TABLE = 'chat_profiles';
-        const CHAT_META_TABLE = 'chat_meta';
-        const CHAT_COMMENTS_TABLE = 'chat_comments';
         const DM_CONVERSATIONS_TABLE = 'dm_conversations';
         const DM_MEMBERS_TABLE = 'dm_conversation_members';
         const DM_MESSAGES_TABLE = 'dm_messages';
@@ -958,8 +956,6 @@
         }
 
         let appState = {
-            counter: parseInt(localStorage.getItem('alec_praise_cnt')) || 1337,
-            comments: JSON.parse(localStorage.getItem('alec_comments') || '[]'),
             channels: JSON.parse(localStorage.getItem('alec_channels') || 'null') || ['secret-lounge'],
             users: JSON.parse(localStorage.getItem('alec_chat_users') || '[]'),
             chatMessages: JSON.parse(localStorage.getItem('alec_messages') || 'null') || [
@@ -1266,8 +1262,6 @@
 
         function persistState() {
             try {
-                localStorage.setItem('alec_praise_cnt', String(appState.counter));
-                localStorage.setItem('alec_comments', JSON.stringify(appState.comments.slice(0, 50)));
                 localStorage.setItem('alec_channels', JSON.stringify(appState.channels));
                 localStorage.setItem('alec_chat_users', JSON.stringify(appState.users));
                 localStorage.setItem('alec_messages', JSON.stringify(appState.chatMessages.slice(-100)));
@@ -1285,8 +1279,6 @@
                         appState.chatMessages.push(data.message); persistState(); renderDiscordMessages(); playChatPing();
                         if (data.message.user !== activeChatUsername) maybeNotifyMention(data.message);
                     }
-                } else if (data.type === 'praise') {
-                    if (data.counter > appState.counter) animateCounterUp(data.counter);
                 }
             };
         } catch (e) { log('TAB_SYNC','BroadcastChannel unsupported','warn'); }
@@ -1480,35 +1472,6 @@
             renderUserDirectory();
         }
 
-        function handleChatMetaEvent(payload) {
-            const row = payload && payload.new;
-            if (!row) return;
-            const next = Number(row.counter) || 0;
-            if (next > appState.counter) animateCounterUp(next);
-        }
-
-        function handleChatCommentEvent(payload) {
-            if (!payload || !payload.eventType) return;
-            if (payload.eventType === 'DELETE') {
-                const oldRow = payload.old || {};
-                if (oldRow.id) {
-                    appState.comments = appState.comments.filter(c => String(c.id) !== String(oldRow.id));
-                }
-            } else {
-                const row = payload.new;
-                if (!row || !row.id || row.deleted_at) return;
-                appState.comments = appState.comments.filter(c => String(c.id) !== String(row.id));
-                appState.comments.unshift({
-                    id: String(row.id),
-                    name: row.author,
-                    content: row.content,
-                    timestamp: Date.parse(row.created_at) || Date.now()
-                });
-                appState.comments = appState.comments.slice(0, 50);
-            }
-            persistState();
-        }
-
         async function refreshChatFromSupabase(options = {}) {
             if (!supabaseClient || !supabaseLive) return false;
             if (chatLoading) return false;
@@ -1531,16 +1494,6 @@
                 }
 
                 await pullDirectoryProfiles();
-
-                const { data: metaRow, error: metaError } = await supabaseClient
-                    .from(CHAT_META_TABLE)
-                    .select('counter, updated_at')
-                    .eq('id', 1)
-                    .maybeSingle();
-                if (metaError) throw metaError;
-                if (metaRow && Number(metaRow.counter) > appState.counter) {
-                    appState.counter = Number(metaRow.counter);
-                }
 
                 let messageRows = [];
                 if (initial || !lastChatSyncAt) {
@@ -1619,10 +1572,6 @@
                 chatLoading = false;
                 flushPendingProfileWrites();
             }
-        }
-
-        function animateCounterUp(target) {
-            appState.counter = target; persistState();
         }
 
         function initAudio() {
@@ -3367,9 +3316,7 @@
             return channel
                 .on('postgres_changes', { event: '*', schema: 'public', table: CHAT_CHANNELS_TABLE }, payload => queueChatEvent(() => handleChatChannelEvent(payload)))
                 .on('postgres_changes', { event: '*', schema: 'public', table: CHAT_MESSAGES_TABLE }, payload => queueChatEvent(() => handleChatMessageEvent(payload)))
-                .on('postgres_changes', { event: '*', schema: 'public', table: CHAT_PROFILES_TABLE }, payload => queueChatEvent(() => handleChatProfileEvent(payload)))
-                .on('postgres_changes', { event: '*', schema: 'public', table: CHAT_META_TABLE }, payload => queueChatEvent(() => handleChatMetaEvent(payload)))
-                .on('postgres_changes', { event: '*', schema: 'public', table: CHAT_COMMENTS_TABLE }, payload => queueChatEvent(() => handleChatCommentEvent(payload)));
+                .on('postgres_changes', { event: '*', schema: 'public', table: CHAT_PROFILES_TABLE }, payload => queueChatEvent(() => handleChatProfileEvent(payload)));
         }
 
         function onSupabaseUp() {
