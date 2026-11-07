@@ -554,30 +554,15 @@
             </div>
             <div>
                 <h3 class="text-2xl font-bold font-heading text-white">Enter Stealth Webchat</h3>
-                <p class="text-gray-400 text-sm max-w-sm mt-1">Chat live with other visitors. Your email identifies you; only your display name is shown.</p>
+                <p class="text-gray-400 text-sm max-w-sm mt-1">Join instantly — no email needed. Public channels are anonymous; direct messages ask for a verified email, which you can add later.</p>
             </div>
 
             <form onsubmit="window.joinSecretLounge(event)" class="w-full max-w-sm space-y-4 pt-1">
                 <div class="text-left space-y-1.5">
-                    <label for="chatEmailInput" class="block text-[11px] font-bold text-gray-400">Email <span class="text-red-400">*</span> <span class="font-normal text-gray-500">(identifies you — never shown in chat)</span></label>
-                    <input type="email" id="chatEmailInput" placeholder="you@example.com" autocomplete="email" oninput="window.handleChatEmailInput(this.value)"
+                    <label for="chatUsernameInput" class="block text-[11px] font-bold text-gray-400">Display name <span class="text-red-400">*</span> <span class="font-normal text-gray-500">(what others see)</span></label>
+                    <input type="text" id="chatUsernameInput" placeholder="Choose a display name (e.g. Cypher)..." required maxlength="32" oninput="window.handleChatUsernameInput(this.value)" autocomplete="off"
                         class="w-full bg-[#1e1f22] border border-[#383a40] rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors">
-                    <p id="chatEmailHint" class="text-[10px] text-gray-500 leading-relaxed">Required. The same email is always the same user; your display name is the only thing others see.</p>
-                </div>
-                <div>
-                    <input type="text" id="chatUsernameInput" placeholder="Choose a display name (e.g. Cypher)..." required maxlength="25" oninput="window.handleChatUsernameInput(this.value)" autocomplete="off"
-                        class="w-full bg-[#1e1f22] border border-[#383a40] rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors">
-                </div>
-
-                <!-- ADMIN PASSWORD BOX (Revealed if username is 'onering') -->
-                <div id="adminPasswordContainer" class="hidden transition-all text-left space-y-1.5 p-3 rounded-xl bg-teal-500/10 border border-teal-500/30">
-                    <label class="block text-xs font-bold text-teal-300 flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-teal-400"><path d="M336 352c97.2 0 176-78.8 176-176S433.2 0 336 0S160 78.8 160 176c0 18.7 2.9 36.8 8.3 53.7L7 391c-4.5 4.5-7 10.6-7 17v80c0 13.3 10.7 24 24 24h80c13.3 0 24-10.7 24-24V448h40c13.3 0 24-10.7 24-24V384h40c6.4 0 12.5-2.5 17-7l33.3-33.3c16.9 5.4 35 8.3 53.7 8.3zM376 96a40 40 0 1 1 0 80 40 40 0 1 1 0-80z"/></svg>
-                        <span>Passkey required for admin access</span>
-                    </label>
-                    <input type="password" id="adminPasswordInput" placeholder="Enter admin password..."
-                        class="w-full bg-[#1e1f22] border border-teal-500/40 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-teal-400 text-sm">
-                    <p id="adminErrorMsg" class="text-[11px] text-red-400 hidden font-semibold">Incorrect passkey</p>
+                    <p id="chatUsernameHint" class="text-[10px] text-gray-500 leading-relaxed">Unique among members. You can always change it later.</p>
                 </div>
 
                 <!-- Avatar Color Picker -->
@@ -591,6 +576,10 @@
                         <button type="button" onclick="window.selectAvatarColor('bg-cyan-600', this)" class="w-8 h-8 rounded-full bg-cyan-600 transition-all"></button>
                         <button type="button" onclick="window.selectAvatarColor('bg-purple-600', this)" class="w-8 h-8 rounded-full bg-purple-600 transition-all"></button>
                     </div>
+                </div>
+
+                <div class="flex justify-center" aria-label="Cloudflare bot protection">
+                    <div id="joinTurnstileWidget"></div>
                 </div>
 
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-heading font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-indigo-500/25 flex items-center justify-center gap-2">
@@ -609,7 +598,7 @@
                         <div class="text-[11px] font-bold text-gray-400 px-2 flex items-center justify-between">
                             <span>Channels</span>
                             <div class="flex items-center gap-1">
-                                <button id="adminUsersBtn" onclick="window.openUserAdmin()" class="hidden text-[10px] bg-teal-600 hover:bg-teal-500 text-white px-2 py-0.5 rounded font-bold transition-colors" title="Manage user emails and display names">
+                                <button id="adminUsersBtn" onclick="window.openUserAdmin()" class="hidden text-[10px] bg-teal-600 hover:bg-teal-500 text-white px-2 py-0.5 rounded font-bold transition-colors" title="Members console (admin)">
                                     Users
                                 </button>
                                 <button id="adminAddChannelBtn" onclick="window.adminPromptAddChannel()" class="hidden text-[10px] bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-0.5 rounded font-bold transition-colors">
@@ -633,7 +622,7 @@
                             <div class="dm-empty">No direct messages yet.</div>
                         </div>
                         <div id="dmSetupNotice" class="dm-setup-notice hidden">
-                            Chat tables are not set up yet. Run <span class="font-mono">supabase/reset.sql</span> in the Supabase SQL editor.
+                            Chat tables are not set up yet. Apply the SQL in <span class="font-mono">supabase/migrations/</span> in the Supabase SQL editor (see README).
                         </div>
                     </div>
                 </div>
@@ -647,13 +636,16 @@
                                 <span id="sidebarUsername" class="text-xs font-bold text-white truncate">User</span>
                                 <span id="sidebarRoleBadge" class="hidden text-[9px] bg-teal-400 text-black font-extrabold px-1.5 py-0.2 rounded uppercase">ADMIN</span>
                             </div>
-                            <div class="text-[10px] text-emerald-400 flex items-center gap-1">
+                            <button onclick="window.openVerifyEmailModal()" id="sidebarVerifyBtn" class="hidden text-[10px] text-amber-400 hover:text-amber-300 font-bold leading-tight" title="Unlock direct messages by verifying an email">
+                                ✉ Verify email
+                            </button>
+                            <div id="sidebarOnlineLine" class="text-[10px] text-emerald-400 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                 <span>Online</span>
                             </div>
                         </div>
                     </div>
-                    <button onclick="window.logoutChatUser()" class="text-gray-400 hover:text-red-400 p-1.5 transition-colors" title="Switch User">
+                    <button onclick="window.logoutChatUser()" class="text-gray-400 hover:text-red-400 p-1.5 transition-colors" title="Sign out">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-xs"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 192 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l210.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 32C43 32 0 75 0 128L0 384c0 53 43 96 96 96l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l64 0z"/></svg>
                     </button>
                 </div>
@@ -767,16 +759,19 @@
                 </div>
                 <div class="dm-modal-pane">
                     <div class="text-[10px] uppercase font-bold text-gray-500">New conversation</div>
-                    <input id="dmUserSearch" type="search" autocomplete="off" placeholder="Search people..." oninput="window.filterDmCandidates(this.value)"
+                    <div id="dmVerifyBanner" class="hidden mt-2 rounded-lg bg-amber-500/10 border border-amber-500/40 text-amber-300 text-[11px] leading-relaxed px-3 py-2">
+                        Direct messages need a verified email. Use the identity menu (your avatar) → <strong>Verify email</strong> to unlock DMs.
+                    </div>
+                    <input id="dmUserSearch" type="search" autocomplete="off" placeholder="Search members..." oninput="window.filterDmCandidates(this.value)"
                         class="w-full mt-2 bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
                     <div id="dmSelectedUsers" class="flex flex-wrap gap-1.5 mt-2"></div>
                     <div id="dmUserList" class="dm-user-list">
-                        <div class="dm-empty">No one else is available yet.</div>
+                        <div class="dm-empty">No other members have joined yet.</div>
                     </div>
                     <input id="dmGroupName" type="text" maxlength="60" autocomplete="off" placeholder="Group name (optional)"
                         class="hidden w-full mt-2 bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
                     <button id="dmCreateBtn" type="button" onclick="window.createDmFromSelection()" disabled>Start conversation</button>
-                    <p id="dmModalHint" class="text-[10px] text-gray-500 mt-2 leading-relaxed">You can message any name you have seen in the chat. Online people are marked green.</p>
+                    <p id="dmModalHint" class="text-[10px] text-gray-500 mt-2 leading-relaxed">Only verified members appear here, exactly as their account name.</p>
                 </div>
             </div>
         </div>
@@ -792,20 +787,53 @@
                     <h2 id="userAdminTitle" class="text-white font-heading font-bold text-lg">User Directory</h2>
                     <p class="text-gray-400 text-xs mt-0.5">The email identifies each person and is never shown in chat. The display name is the only thing others see.</p>
                 </div>
-                <button type="button" onclick="window.closeUserAdmin()" class="chat-image-remove" title="Close user directory" aria-label="Close user directory">×</button>
+                <button type="button" onclick="window.closeUserAdmin()" class="chat-image-remove" title="Close members console" aria-label="Close members console">×</button>
             </div>
             <div class="p-4 space-y-3 overflow-y-auto">
-                <form onsubmit="window.adminAddDirectoryUser(event)" class="grid grid-cols-1 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_auto] gap-2">
-                    <input id="userAdminEmail" type="email" required maxlength="120" autocomplete="off" placeholder="person@example.com"
-                        class="bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-teal-500 text-sm">
-                    <input id="userAdminName" type="text" maxlength="25" autocomplete="off" placeholder="Display name"
-                        class="bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-teal-500 text-sm">
-                    <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors whitespace-nowrap">Add email</button>
+                <!-- Passkey gate: unlocks the console CONTROLS in this UI only.
+                     Real authority is enforced server-side by RLS (app_metadata.role). -->
+                <form id="userAdminGate" onsubmit="window.submitUserAdminPasskey(event)" class="space-y-2">
+                    <p class="text-[11px] text-gray-400 leading-relaxed">Read-only member viewer for admins. Enter the admin passkey to unlock this console (UI gate — permissions are enforced by the backend).</p>
+                    <div class="flex gap-2">
+                        <input id="userAdminPasskey" type="password" autocomplete="off" placeholder="Admin passkey"
+                            class="flex-1 bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-teal-500 text-sm">
+                        <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors">Unlock</button>
+                    </div>
+                    <p id="userAdminGateError" class="text-[11px] text-red-400 hidden font-semibold">Incorrect passkey</p>
                 </form>
-                <p class="text-[10px] text-gray-500 leading-relaxed">Pre-register emails here to reserve their display name. Remove a display name to free it up. Remove the email to delete the profile (they can re-create it by joining again).</p>
-                <div id="userAdminList" class="dm-user-list" style="max-height:42vh;">
-                    <div class="dm-empty">No emails in the directory yet.</div>
+                <div id="userAdminContent" class="hidden space-y-3">
+                    <p class="text-[10px] text-gray-500 leading-relaxed">Members are Supabase auth accounts. Emails are never exposed here; roles are managed in the Supabase dashboard (auth.users → raw_app_meta_data).</p>
+                    <div id="userAdminList" class="dm-user-list" style="max-height:42vh;">
+                        <div class="dm-empty">No members have joined yet.</div>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- VERIFY EMAIL (upgrades an anonymous session to OTP)      -->
+    <!-- ======================================================== -->
+    <div id="verifyEmailModal" class="dm-modal hidden" role="dialog" aria-modal="true" aria-labelledby="verifyEmailTitle" onclick="if(event.target===this)window.closeVerifyEmailModal()">
+        <div class="dm-modal-card" style="max-width:26rem;">
+            <div class="dm-modal-header">
+                <div class="min-w-0">
+                    <h2 id="verifyEmailTitle" class="text-white font-heading font-bold text-lg">Verify email</h2>
+                    <p class="text-gray-400 text-xs mt-0.5">Lock in your identity to unlock direct messages.</p>
+                </div>
+                <button type="button" onclick="window.closeVerifyEmailModal()" class="chat-image-remove" title="Close verify email" aria-label="Close verify email">×</button>
+            </div>
+            <div class="p-4 space-y-3">
+                <form id="verifyEmailForm" onsubmit="window.submitVerifyEmail(event)" class="space-y-3">
+                    <div class="text-left space-y-1.5">
+                        <label for="verifyEmailInput" class="block text-[11px] font-bold text-gray-400">Email address</label>
+                        <input type="email" id="verifyEmailInput" required autocomplete="email" placeholder="you@example.com"
+                            class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 text-sm">
+                    </div>
+                    <p id="verifyEmailHint" class="text-[10px] text-gray-500 leading-relaxed hidden"></p>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold px-3 py-2.5 rounded-lg transition-colors">Send verification link</button>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">You keep this chat account and display name. Until you click the link we send, only public channels are available to you.</p>
+                </form>
             </div>
         </div>
     </div>
@@ -892,15 +920,19 @@
         // Fill these in, or configure at runtime from the browser console:
         //   configureSupabase('https://YOUR-PROJECT.supabase.co', 'eyJ...')
         // Only the public anon key belongs here. Never embed service_role.
-        // Run supabase/reset.sql once in the Supabase SQL editor before enabling this.
+        // Backend schema must exist: apply supabase/migrations/*.sql first
+        // (README). Identity: silent ANONYMOUS auth for public chat; email
+        // verification (OTP/link) required for direct messages; admins are
+        // accounts with app_metadata.role='admin'.
         // ------------------------------------------------------------
         const SUPABASE_URL = 'https://yxvsbpssxralmqnylshv.supabase.co';
+        const TURNSTILE_SITE_KEY = '0x4AAAAAAF31caqB-9170NxOvLptw6iy0zM';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dnNicHNzeHJhbG1xbnlsc2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1ODk3MTgsImV4cCI6MjEwODE2NTcxOH0.cilnNKa2uXgdXItpyeu4vsEPtA-NjSyPWMeJsSXDpb0';
         // Normalized tables. Each message is its own row so concurrent
         // senders can never overwrite each other's messages.
         const CHAT_CHANNELS_TABLE = 'chat_channels';
         const CHAT_MESSAGES_TABLE = 'chat_messages';
-        const CHAT_PROFILES_TABLE = 'chat_profiles';
+        const PROFILES_TABLE = 'profiles';
         const DM_CONVERSATIONS_TABLE = 'dm_conversations';
         const DM_MEMBERS_TABLE = 'dm_conversation_members';
         const DM_MESSAGES_TABLE = 'dm_messages';
@@ -910,33 +942,35 @@
         const DM_LAST_READ_KEY = 'alec_dm_last_read';
         const DM_MAX_SELECTED_USERS = 20;
 
-        // Chat images live in Supabase Storage when it is available. The URL is
-        // stored on the message; the file itself is kept for 10 days.
+        // Chat images live in Supabase Storage (bucket is PRIVATE). Messages
+        // store the object path; the renderer resolves short-lived signed
+        // URLs client-side. Retention is server-side (see README).
         const CHAT_IMAGE_BUCKET = 'chat-images';
-        const CHAT_IMAGE_RETENTION_DAYS = 10;
-        const CHAT_IMAGE_RETENTION_MS = CHAT_IMAGE_RETENTION_DAYS * 24 * 60 * 60 * 1000;
         const CHAT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
         const CHAT_IMAGE_MAX_DIM = 1600;
         const CHAT_IMAGE_THUMB_MAX_DIM = 480;
-        const CHAT_IMAGE_CLEANUP_INTERVAL_MS = 6 * 60 * 60 * 1000;
+        // Signed-URL lifecycle is server-side now; no client cleanup pass.
         const CHAT_MESSAGE_MAX_CHARS = 2000;
         const CHAT_NEAR_BOTTOM_PX = 80;
 
+        // ADMIN PASSKEY — UI GATE ONLY. Real authority is enforced by
+        // Supabase Row-Level Security via app_metadata.role='admin'.
+        // The passkey merely unlocks the admin console controls in this UI;
+        // a client that skips it still cannot write anything with RLS.
         const ADMIN_PW_SALT = 'pDLgIVZt2HvTk71w8O+0wA==';
         const ADMIN_PW_HASH = '2xgDWXnUtdoB945y1b9WDYg7FnzbLxtDHJYPptIw5EI=';
         const ADMIN_PW_ITERATIONS = 1000000;
 
-        // Only the palette offered by the picker (plus the admin gradient) may
-        // reach a class attribute. Stored values are untrusted: messages can be
-        // inserted straight through the API, bypassing this UI entirely.
+        // Only the palette offered by the picker may reach a class attribute.
+        // Stored values are untrusted: messages can be inserted straight
+        // through the API, bypassing this UI entirely.
         const AVATAR_COLOR_CLASSES = new Set([
             'bg-indigo-600',
             'bg-teal-500',
             'bg-emerald-600',
             'bg-rose-600',
             'bg-cyan-600',
-            'bg-purple-600',
-            'bg-gradient-to-tr from-teal-500 to-teal-300 text-black'
+            'bg-purple-600'
         ]);
         const DEFAULT_AVATAR_COLOR = 'bg-indigo-600';
 
@@ -952,8 +986,9 @@
         }
 
         async function verifyAdminPassword(password) {
+            // UI gate only — see the comment above ADMIN_PW_*.
             if (!(window.crypto && crypto.subtle)) {
-                log('AUTH', 'WebCrypto unavailable; admin login cannot be verified', 'error');
+                log('AUTH', 'WebCrypto unavailable; admin console cannot be unlocked', 'error');
                 return false;
             }
             const keyMaterial = await crypto.subtle.importKey(
@@ -975,7 +1010,6 @@
 
         let appState = {
             channels: JSON.parse(localStorage.getItem('alec_channels') || 'null') || ['secret-lounge'],
-            users: JSON.parse(localStorage.getItem('alec_chat_users') || '[]'),
             chatMessages: JSON.parse(localStorage.getItem('alec_messages') || 'null') || [
                 {
                     id: 'm_init',
@@ -990,221 +1024,469 @@
         };
 
         // ------------------------------------------------------------
-        // USER DIRECTORY (email → display name, never authentication)
+        // IDENTITY — Supabase Auth (anonymous -> email-verified)
+        // There is no client-side email "directory" anymore: every visitor
+        // gets a real account via silent ANONYMOUS sign-in, and the public
+        // `profiles` table (keyed by auth.uid()) is the only shared registry.
+        // Anonymous users cannot start or receive DMs until they verify an
+        // email address; admins carry app_metadata.role='admin' (set only
+        // server-side, see README).
         // ------------------------------------------------------------
-        function normalizeEmail(email) {
-            return String(email || '').trim().toLowerCase();
+        let authUser = null;            // session.user (from Supabase Auth)
+        let currentUserId = '';         // auth.uid()
+        let isAnonymousIdentity = true; // true until email is verified
+        let adminUiUnlocked = false;    // onering passkey = UI gate only
+        let profilesHydrationTimer = null;
+        let joinCaptchaToken = '';
+        let joinCaptchaWidgetId = null;
+        const directoryCache = new Map(); // uid -> {id, username, avatar_color, is_anonymous}
+
+        async function refreshAuthUser() {
+            if (!supabaseClient) return null;
+            const { data } = await supabaseClient.auth.getUser();
+            authUser = data && data.user ? data.user : null;
+            currentUserId = authUser ? String(authUser.id) : '';
+            isAnonymousIdentity = authUser ? authUser.is_anonymous !== false : true;
+            isUserAdmin = authUser ? !isAnonymousIdentity && authUser.app_metadata?.role === 'admin' : false;
+            if (authUser) directoryCache.set(currentUserId, profileCacheFromRow({
+                id: authUser.id,
+                username: activeChatUsername,
+                avatarColor: activeAvatarColor,
+                is_anonymous: isAnonymousIdentity
+            }));
+            return authUser;
         }
 
-        function isValidEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(email));
+        function supabaseUserReady() {
+            return !!(supabaseClient && authUser && currentUserId);
         }
 
-        function normalizeUserEntry(entry) {
-            if (!entry || typeof entry !== 'object') return null;
-            const email = normalizeEmail(entry.email);
-            if (!isValidEmail(email)) return null;
-            return {
-                email,
-                displayName: String(entry.displayName || '').trim().slice(0, 25),
-                key: String(entry.key || '').trim(),
-                emailPings: entry.emailPings !== false,
-                updatedAt: Number(entry.updatedAt) || 0,
-                removed: entry.removed === true
-            };
-        }
-
-        function normalizeUserDirectory(list) {
-            const byEmail = new Map();
-            (Array.isArray(list) ? list : []).forEach(raw => {
-                const entry = normalizeUserEntry(raw);
-                if (!entry) return;
-                const existing = byEmail.get(entry.email);
-                if (!existing || entry.updatedAt >= existing.updatedAt) byEmail.set(entry.email, entry);
+        async function signInAnonymous(captchaToken) {
+            if (!supabaseClient) throw new Error('Supabase is not connected');
+            const { data, error } = await supabaseClient.auth.signInAnonymously({
+                options: { captchaToken }
             });
-            return [...byEmail.values()].sort((a, b) => a.email.localeCompare(b.email));
+            if (error) throw error;
+            authUser = data && data.user;
+            if (authUser) {
+                currentUserId = String(authUser.id);
+                isAnonymousIdentity = true;
+            }
+            return authUser;
         }
 
-        function mergeUserDirectories(primary, secondary) {
-            const byEmail = new Map();
-            [...(Array.isArray(primary) ? primary : []), ...(Array.isArray(secondary) ? secondary : [])].forEach(raw => {
-                const entry = normalizeUserEntry(raw);
-                if (!entry) return;
-                const existing = byEmail.get(entry.email);
-                if (!existing) { byEmail.set(entry.email, entry); return; }
-                if (entry.updatedAt > existing.updatedAt) byEmail.set(entry.email, entry);
-                else if (entry.updatedAt === existing.updatedAt && entry.displayName && !existing.displayName) {
-                    byEmail.set(entry.email, Object.assign({}, existing, { displayName: entry.displayName }));
+        function updateJoinCaptchaHint(message, isError) {
+            const hint = document.getElementById('chatUsernameHint');
+            if (!hint) return;
+            hint.textContent = message;
+            hint.classList.toggle('text-red-400', !!isError);
+        }
+
+        function resetJoinCaptcha() {
+            joinCaptchaToken = '';
+            if (joinCaptchaWidgetId !== null && window.turnstile) {
+                try { window.turnstile.reset(joinCaptchaWidgetId); } catch (e) {}
+            }
+        }
+
+        function initializeJoinCaptcha() {
+            const container = document.getElementById('joinTurnstileWidget');
+            if (!container || joinCaptchaWidgetId !== null) return;
+            const renderWidget = () => {
+                if (!window.turnstile || joinCaptchaWidgetId !== null) return;
+                try {
+                    joinCaptchaWidgetId = window.turnstile.render(container, {
+                        sitekey: TURNSTILE_SITE_KEY,
+                        theme: 'dark',
+                        callback: (token) => {
+                            joinCaptchaToken = token || '';
+                            updateJoinCaptchaHint('Unique among members. You can always change it later.', false);
+                        },
+                        'expired-callback': () => {
+                            joinCaptchaToken = '';
+                            updateJoinCaptchaHint('Bot check expired. Please verify again.', true);
+                        },
+                        'error-callback': () => {
+                            joinCaptchaToken = '';
+                            updateJoinCaptchaHint('Bot check unavailable. Refresh the page and try again.', true);
+                        }
+                    });
+                } catch (err) {
+                    log('AUTH', 'Turnstile could not be initialized: ' + (err.message || err), 'error');
+                    updateJoinCaptchaHint('Bot check unavailable. Refresh the page and try again.', true);
                 }
-            });
-            return [...byEmail.values()].sort((a, b) => a.email.localeCompare(b.email));
-        }
-
-        function activeDirectoryUsers() {
-            return appState.users.filter(entry => !entry.removed);
-        }
-
-        function findDirectoryUser(email) {
-            const key = normalizeEmail(email);
-            if (!key) return null;
-            return activeDirectoryUsers().find(entry => entry.email === key) || null;
-        }
-
-        function upsertDirectoryUser(entry) {
-            const normalized = normalizeUserEntry(entry);
-            if (!normalized) return null;
-            appState.users = mergeUserDirectories([normalized], appState.users);
-            return normalized;
-        }
-
-        // ------------------------------------------------------------
-        // PROFILE BACKING STORE: public.chat_profiles
-        // The email is the identity and is used as the row key
-        // (username_key). username is only the public display name; the
-        // email itself is never shown in chat.
-        // ------------------------------------------------------------
-        function directoryKeyForEntry(entry) {
-            const normalized = normalizeUserEntry(entry);
-            if (!normalized) return '';
-            return normalized.email;
-        }
-
-        function profileEntryFromRow(row) {
-            if (!row) return null;
-            return normalizeUserEntry({
-                email: row.email || row.username_key,
-                displayName: row.username || '',
-                key: normalizeEmail(row.username_key || row.email),
-                emailPings: row.email_pings !== false,
-                updatedAt: Date.parse(row.updated_at) || 0,
-                removed: !!row.removed_at
-            });
-        }
-
-        function profileRowFromEntry(entry) {
-            const normalized = normalizeUserEntry(entry);
-            if (!normalized) return null;
-            return {
-                username_key: directoryKeyForEntry(normalized),
-                username: normalized.displayName,
-                email: normalized.email,
-                email_pings: normalized.emailPings,
-                removed_at: normalized.removed ? new Date().toISOString() : null
             };
+
+            if (window.turnstile) {
+                renderWidget();
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+            script.async = true;
+            script.defer = true;
+            script.onload = renderWidget;
+            script.onerror = () => updateJoinCaptchaHint('Bot check could not load. Check your connection and refresh.', true);
+            document.head.appendChild(script);
         }
 
-        const pendingProfileWrites = new Map();
+        initializeJoinCaptcha();
 
-        async function writeDirectoryEntryToSupabase(entry, previousKey) {
-            const row = profileRowFromEntry(entry);
-            if (!row) return false;
-            if (!supabaseClient) {
-                pendingProfileWrites.set(row.username_key, row);
-                return false;
-            }
-            try {
-                // The email is the key, so previousKey is normally identical.
-                if (previousKey && previousKey !== row.username_key) {
-                    await supabaseClient
-                        .from(CHAT_PROFILES_TABLE)
-                        .update({ removed_at: new Date().toISOString() })
-                        .eq('username_key', previousKey);
-                }
-                const { error } = await supabaseClient
-                    .from(CHAT_PROFILES_TABLE)
-                    .upsert(row, { onConflict: 'username_key' });
-                if (error) {
-                    pendingProfileWrites.set(row.username_key, row);
-                    log('USERS', `Profile write failed: ${error.message}`, 'error');
-                    return false;
-                }
-                pendingProfileWrites.delete(row.username_key);
-                return true;
-            } catch (e) {
-                pendingProfileWrites.set(row.username_key, row);
-                log('USERS', `Profile write error: ${e.message}`, 'error');
-                return false;
-            }
-        }
-
-        async function flushPendingProfileWrites() {
-            if (!supabaseClient || pendingProfileWrites.size === 0) return;
-            const rows = Array.from(pendingProfileWrites.values());
-            pendingProfileWrites.clear();
-            try {
-                const { error } = await supabaseClient
-                    .from(CHAT_PROFILES_TABLE)
-                    .upsert(rows, { onConflict: 'username_key' });
-                if (error) {
-                    rows.forEach(row => pendingProfileWrites.set(row.username_key, row));
-                    log('USERS', `Queued profile write failed: ${error.message}`, 'warn');
-                }
-            } catch (e) {
-                rows.forEach(row => pendingProfileWrites.set(row.username_key, row));
-                log('USERS', `Queued profile write error: ${e.message}`, 'warn');
+        // Boot path: a stored session restores the identity and the chat UI;
+        // no session -> the join screen. Called from initSupabase and from
+        // onAuthStateChange whenever the session id actually changes.
+        async function applyAuthSession(session) {
+            if (session && session.user) {
+                authUser = session.user;
+                currentUserId = String(session.user.id);
+                isAnonymousIdentity = authUser.is_anonymous !== false;
+                isUserAdmin = !isAnonymousIdentity && authUser.app_metadata?.role === 'admin';
+                await restoreProfileForUser();
+                updateConnStatus();
+            } else {
+                authUser = null;
+                currentUserId = '';
+                isAnonymousIdentity = true;
+                isUserAdmin = false;
+                showAuthScreen('');
             }
         }
 
-        async function deleteDirectoryEntryFromSupabase(key) {
-            if (!key) return false;
-            const tombstone = {
-                username_key: key,
-                email: key,
-                username: '',
-                email_pings: true,
-                removed_at: new Date().toISOString()
-            };
-            if (!supabaseClient) {
-                pendingProfileWrites.set(key, tombstone);
-                return false;
-            }
-            try {
-                const { error } = await supabaseClient
-                    .from(CHAT_PROFILES_TABLE)
-                    .upsert(tombstone, { onConflict: 'username_key' });
-                if (error) {
-                    pendingProfileWrites.set(key, tombstone);
-                    log('USERS', `Profile delete failed: ${error.message}`, 'error');
-                    return false;
-                }
-                pendingProfileWrites.delete(key);
-                return true;
-            } catch (e) {
-                pendingProfileWrites.set(key, tombstone);
-                log('USERS', `Profile delete error: ${e.message}`, 'error');
-                return false;
-            }
-        }
-
-        async function pullDirectoryProfiles() {
-            if (!supabaseClient) return;
+        async function restoreProfileForUser() {
+            if (!supabaseClient || !currentUserId) return false;
             try {
                 const { data, error } = await supabaseClient
-                    .from(CHAT_PROFILES_TABLE)
-                    .select('username_key, username, email, email_pings, removed_at, updated_at')
-                    .order('email', { ascending: true });
-                if (error) { log('USERS', `Directory load failed: ${error.message}`, 'warn'); return; }
-                const remote = (data || []).map(profileEntryFromRow).filter(Boolean);
-                // Keep profiles that joined while the write was queued.
-                const queued = Array.from(pendingProfileWrites.values())
-                    .map(profileEntryFromRow)
-                    .filter(Boolean);
-                const previousCount = appState.users.length;
-                appState.users = mergeUserDirectories(remote, queued);
-                persistState();
-                renderUserDirectory();
-                if (previousCount !== appState.users.length) {
-                    log('USERS', `Directory loaded: ${activeDirectoryUsers().length} profile(s)`, 'success');
+                    .from(PROFILES_TABLE)
+                    .select('id, username, avatar_color, is_anonymous')
+                    .eq('id', currentUserId)
+                    .maybeSingle();
+                if (error) throw error;
+                if (data && data.username) {
+                    activeChatUsername = data.username;
+                    activeAvatarColor = safeAvatarColor(data.avatar_color);
+                    localStorage.setItem('alec_chat_user', activeChatUsername);
+                    localStorage.setItem('alec_chat_color', activeAvatarColor);
+                    directoryCache.set(currentUserId, profileCacheFromRow(data));
+                    enterChatUi();
+                    return true;
                 }
-            } catch (e) { log('USERS', `Directory load error: ${e.message}`, 'warn'); }
+            } catch (e) {
+                log('AUTH', 'Profile restore failed: ' + (e.message || e), 'warn');
+            }
+            showAuthScreen('');
+            return false;
         }
 
-        appState.users = normalizeUserDirectory(appState.users);
+        function enterChatUi() {
+            const authScreen = document.getElementById('discordAuthScreen');
+            const container = document.getElementById('discordChatContainer');
+            if (authScreen) authScreen.classList.add('hidden');
+            if (container) container.classList.remove('hidden');
+            refreshIdentityUi();
+            // Click the sidebar display name to change it (profile update).
+            const nameEl = document.getElementById('sidebarUsername');
+            if (nameEl && !nameEl.dataset.renameWired) {
+                nameEl.dataset.renameWired = '1';
+                nameEl.classList.add('cursor-pointer');
+                nameEl.title = 'Click to change display name';
+                nameEl.onclick = async () => {
+                    if (!currentUserId) return;
+                    const next = prompt('New display name (1-32 chars):', activeChatUsername);
+                    if (!next) return;
+                    await renameMyProfile(next);
+                    renderTerminalLogs();
+                };
+            }
+            if (currentUserId) {
+                loadDmLastRead();
+                initPresenceChannel();
+                trackPresence();
+                initDmRealtime();
+                loadDmData();
+            }
+        }
+
+        function updateSidebarIdentity() {
+            const nameEl = document.getElementById('sidebarUsername');
+            const avatarEl = document.getElementById('sidebarUserAvatar');
+            if (nameEl) nameEl.textContent = activeChatUsername || 'User';
+            if (avatarEl) {
+                avatarEl.textContent = (activeChatUsername || 'U').charAt(0).toUpperCase();
+                avatarEl.className = `w-8 h-8 rounded-full ${safeAvatarColor(activeAvatarColor)} flex items-center justify-center font-bold text-white text-xs shrink-0`;
+            }
+        }
+
+        function refreshIdentityUi() {
+            updateSidebarIdentity();
+            const badge = document.getElementById('sidebarRoleBadge');
+            const addBtn = document.getElementById('adminAddChannelBtn');
+            const purgeBtn = document.getElementById('adminPurgeBtn');
+            const usersBtn = document.getElementById('adminUsersBtn');
+            if (isUserAdmin) {
+                if (badge) badge.classList.remove('hidden');
+                if (addBtn) addBtn.classList.remove('hidden');
+                if (purgeBtn) purgeBtn.classList.remove('hidden');
+                if (usersBtn) usersBtn.classList.remove('hidden');
+            } else {
+                if (badge) badge.classList.add('hidden');
+                if (addBtn) addBtn.classList.add('hidden');
+                if (purgeBtn) purgeBtn.classList.add('hidden');
+                if (usersBtn) usersBtn.classList.add('hidden');
+            }
+            const verifyBtn = document.getElementById('sidebarVerifyBtn');
+            const onlineLine = document.getElementById('sidebarOnlineLine');
+            if (verifyBtn && onlineLine) {
+                const showVerify = !!(authUser && isAnonymousIdentity);
+                verifyBtn.classList.toggle('hidden', !showVerify);
+                onlineLine.classList.toggle('hidden', showVerify);
+            }
+            const banner = document.getElementById('dmVerifyBanner');
+            if (banner) banner.classList.toggle('hidden', !isAnonymousIdentity);
+            // Re-evaluate admin-sensitive chrome that depends on identity.
+            renderNavigation();
+        }
+
+        function showAuthScreen(message) {
+            const authScreen = document.getElementById('discordAuthScreen');
+            const container = document.getElementById('discordChatContainer');
+            if (authScreen) authScreen.classList.remove('hidden');
+            if (container) container.classList.add('hidden');
+            const hint = document.getElementById('chatUsernameHint');
+            if (hint && message) {
+                hint.textContent = message;
+                hint.classList.add('text-red-400');
+            } else if (hint) {
+                hint.classList.remove('text-red-400');
+                if (!message) hint.textContent = 'Unique among members. You can always change it later.';
+            }
+        }
+
+        // ------------------------------------------------------------
+        // EMAIL VERIFICATION (unlocks DMs on the anonymous session)
+        // updateUser({ email }) sends a confirmation link; clicking it
+        // verifies the SAME account (auth.uid() stays), so chat identity
+        // carries over and direct messages become usable.
+        // ------------------------------------------------------------
+        window.openVerifyEmailModal = function() {
+            if (!authUser) { chatToast('Join the chat first', true); return; }
+            if (!isAnonymousIdentity) { chatToast('Your email is already verified'); return; }
+            const form = document.getElementById('verifyEmailForm');
+            const hint = document.getElementById('verifyEmailHint');
+            const input = document.getElementById('verifyEmailInput');
+            if (form) form.classList.remove('hidden');
+            if (hint) hint.classList.add('hidden');
+            const modal = document.getElementById('verifyEmailModal');
+            if (modal) modal.classList.remove('hidden');
+            if (input) setTimeout(() => input.focus(), 50);
+        };
+
+        window.closeVerifyEmailModal = function() {
+            const modal = document.getElementById('verifyEmailModal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.submitVerifyEmail = async function(e) {
+            if (e) e.preventDefault();
+            if (!supabaseUserReady()) { chatToast('Not connected — try again shortly', true); return; }
+            const input = document.getElementById('verifyEmailInput');
+            const hint = document.getElementById('verifyEmailHint');
+            const email = String(input && input.value || '').trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                if (hint) { hint.textContent = 'Enter a valid email address.'; hint.classList.remove('hidden'); }
+                return;
+            }
+            if (hint) { hint.textContent = 'Sending…'; hint.classList.remove('hidden'); }
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ email });
+                if (error) throw error;
+                if (hint) hint.textContent = 'Check your inbox and click the link. Come back here after verifying — DMs unlock automatically.';
+                input.value = '';
+                log('AUTH', 'Verification email sent (account upgrade link)', 'success');
+                chatToast('Verification link sent');
+            } catch (err) {
+                if (hint) hint.textContent = err.message || 'Could not send the verification email.';
+                log('AUTH', 'Email verification failed: ' + (err.message || err), 'warn');
+            }
+        };
+
+        function sanitizeDisplayName(name) {
+            return String(name || '').replace(/\s+/g, ' ').trim().slice(0, 32);
+        }
+
+        function profileCacheFromRow(row) {
+            if (!row || !row.id) return null;
+            return {
+                id: String(row.id),
+                username: String(row.username || ''),
+                avatarColor: safeAvatarColor(row.avatar_color || row.avatarColor),
+                is_anonymous: row.is_anonymous === true
+            };
+        }
+
+        function cachedUsername(uid) {
+            const entry = directoryCache.get(String(uid));
+            return entry ? entry.username : '';
+        }
+
+        async function fetchProfilesByIds(ids) {
+            const wanted = [...new Set((ids || []).map(String).filter(id =>
+                id && id !== currentUserId))].filter(id => !directoryCache.has(id));
+            if (!wanted.length || !supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from(PROFILES_TABLE)
+                    .select('id, username, avatar_color, is_anonymous')
+                    .in('id', wanted);
+                if (error) { log('USERS', `Profile lookup failed: ${error.message}`, 'warn'); return; }
+                (data || []).forEach(row => {
+                    const entry = profileCacheFromRow(row);
+                    if (entry) directoryCache.set(entry.id, entry);
+                });
+            } catch (e) { log('USERS', `Profile lookup error: ${e.message}`, 'warn'); }
+        }
+
+        async function searchDirectoryProfiles(term, limit = 25) {
+            if (!supabaseClient) return [];
+            let query = supabaseClient
+                .from(PROFILES_TABLE)
+                .select('id, username, avatar_color, is_anonymous')
+                .neq('id', currentUserId)
+                .order('username', { ascending: true })
+                .limit(limit);
+            const needle = String(term || '').trim();
+            if (needle) query = query.ilike('username', '%' + needle.replace(/[%_]/g, ch => '\\' + ch) + '%');
+            try {
+                const { data, error } = await query;
+                if (error) { log('USERS', `Search failed: ${error.message}`, 'warn'); return []; }
+                return (data || []).map(profileCacheFromRow).filter(Boolean);
+            } catch (e) { log('USERS', `Search error: ${e.message}`, 'warn'); return []; }
+        }
+
+        function randomGuestName() {
+            return 'guest-' + Math.random().toString(36).slice(2, 8);
+        }
+
+        // Creates (or restores) the profile row for the signed-in user.
+        // Collision on the unique display name is handled by suffix retries.
+        async function ensureMyProfile(preferredName = '') {
+            if (!supabaseClient || !currentUserId) return false;
+            const base = sanitizeDisplayName(preferredName) || activeChatUsername;
+            let candidate = sanitizeDisplayName(base) || randomGuestName();
+            let setColor = safeAvatarColor(activeAvatarColor);
+            for (let attempt = 0; attempt < 5; attempt++) {
+                const { error } = await supabaseClient
+                    .from(PROFILES_TABLE)
+                    .upsert({ id: currentUserId, username: candidate, avatar_color: setColor },
+                            { onConflict: 'id' });
+                if (!error) {
+                    activeChatUsername = candidate;
+                    activeAvatarColor = safeAvatarColor(setColor);
+                    localStorage.setItem('alec_chat_user', activeChatUsername);
+                    localStorage.setItem('alec_chat_color', activeAvatarColor);
+                    directoryCache.set(currentUserId, {
+                        id: currentUserId, username: activeChatUsername,
+                        avatarColor: activeAvatarColor, is_anonymous: isAnonymousIdentity
+                    });
+                    return true;
+                }
+                if (error.code === '23505') {
+                    if (!sanitizeDisplayName(preferredName)) {
+                        // engine-generated guest name collided: new random name
+                        candidate = randomGuestName();
+                        continue;
+                    }
+                    const suffix = Math.floor(10 + Math.random() * 90);
+                    candidate = (base + '_' + suffix).slice(0, 32);
+                    continue;
+                }
+                log('USERS', `Profile create failed: ${error.message}`, 'error');
+                return false;
+            }
+            log('USERS', 'Could not find a free display name automatically', 'error');
+            return false;
+        }
+
+        async function renameMyProfile(name) {
+            const target = sanitizeDisplayName(name);
+            if (!target) { chatToast('Enter a display name first', true); return false; }
+            if (!supabaseClient || !currentUserId) return false;
+            const { error } = await supabaseClient
+                .from(PROFILES_TABLE)
+                .update({ username: target, avatar_color: safeAvatarColor(activeAvatarColor) })
+                .eq('id', currentUserId);
+            if (!error) {
+                activeChatUsername = target;
+                localStorage.setItem('alec_chat_user', activeChatUsername);
+                directoryCache.set(currentUserId, {
+                    id: currentUserId, username: target,
+                    avatarColor: safeAvatarColor(activeAvatarColor), is_anonymous: isAnonymousIdentity
+                });
+                enterChatUi(true);
+                return true;
+            }
+            if (error.code === '23505') chatToast('That display name is already taken', true);
+            else chatToast('Could not save name: ' + (error.message || 'network error'), true);
+            log('USERS', `Rename failed: ${error.message || error}`, 'warn');
+            return false;
+        }
+
+        // Signed URLs are short-lived; they are refreshed lazily per render.
+        const SIGNED_URL_TTL = 60 * 30; // 30 minutes; the app renews URLs for active members
+        function isSignedUrl(url) {
+            return /^https?:\/\//.test(String(url || '')) && String(url).includes('/storage/v1/object/sign/');
+        }
+
+        async function hydrateImageUrls(messages) {
+            const nowSec = Date.now() / 1000;
+            const RESIGN_WINDOW = 60 * 5; // renew five minutes before expiry
+            const paths = new Set();
+            const needsResign = m => {
+                if (!m) return null;
+                const staleFull = m.imagePath && !(m.imageUrl && isSignedUrl(m.imageUrl)
+                    && (!m.imageExpires || m.imageExpires > nowSec + RESIGN_WINDOW));
+                const staleThumb = m.imageThumbPath && !(m.imageThumbUrl && isSignedUrl(m.imageThumbUrl)
+                    && (!m.imageExpires || m.imageExpires > nowSec + RESIGN_WINDOW));
+                if (staleFull) return String(m.imagePath);
+                if (staleThumb) return String(m.imageThumbPath);
+                return null;
+            };
+            (messages || []).forEach(m => {
+                const stale = needsResign(m);
+                if (stale) paths.add(stale);
+            });
+            if (!paths.size || !supabaseClient) return;
+            const list = [...paths];
+            for (let i = 0; i < list.length; i += 100) {
+                try {
+                    const { data, error } = await supabaseClient.storage
+                        .from(CHAT_IMAGE_BUCKET)
+                        .createSignedUrls(list.slice(i, i + 100), SIGNED_URL_TTL);
+                    if (error || !data) throw (error || new Error('no signed urls'));
+                    const byPath = new Map(data.map(result => [result.path, result.signedUrl]));
+                    (messages || []).forEach(m => {
+                        if (!m) return;
+                        if (m.imagePath && byPath.has(String(m.imagePath)) &&
+                            !(m.imageUrl && isSignedUrl(m.imageUrl) && (!m.imageExpires || m.imageExpires > nowSec))) {
+                            m.imageUrl = byPath.get(String(m.imagePath));
+                        }
+                        if (m.imageThumbPath && byPath.has(String(m.imageThumbPath)) &&
+                            !(m.imageThumbUrl && isSignedUrl(m.imageThumbUrl) && (!m.imageExpires || m.imageExpires > nowSec))) {
+                            m.imageThumbUrl = byPath.get(String(m.imageThumbPath));
+                        }
+                        if ((m.imagePath && byPath.has(String(m.imagePath))) ||
+                            (m.imageThumbPath && byPath.has(String(m.imageThumbPath)))) {
+                            m.imageExpires = Math.floor(nowSec + SIGNED_URL_TTL);
+                        }
+                    });
+                } catch (e) {
+                    log('IMAGE', 'Signed URL refresh failed: ' + ((e && e.message) || e), 'warn');
+                }
+            }
+        }
 
         let currentChannel = appState.channels[0] || 'secret-lounge';
-        let activeChatUsername = localStorage.getItem('alec_chat_user') || '';
+        // (activeChatUsername / isUserAdmin live in the identity module above)
         let activeAvatarColor = safeAvatarColor(localStorage.getItem('alec_chat_color'));
-        let isUserAdmin = false;
         let pendingReply = null;
         let isAudioMuted = localStorage.getItem('alec_chat_muted') === 'true';
         let audioCtx = null;
@@ -1217,8 +1499,6 @@
         let supabaseRetryTimer = null;
         let supabaseRetryAttempts = 0;
         let supabaseBootTimer = null;
-        let imageCleanupRunning = false;
-        let imageCleanupTimer = null;
         let chatInitialLoaded = false;
         let lastChatSyncAt = 0;
         let pendingChatEvents = [];
@@ -1281,7 +1561,6 @@
         function persistState() {
             try {
                 localStorage.setItem('alec_channels', JSON.stringify(appState.channels));
-                localStorage.setItem('alec_chat_users', JSON.stringify(appState.users));
                 localStorage.setItem('alec_messages', JSON.stringify(appState.chatMessages.slice(-100)));
             } catch (e) { log('STORAGE', 'Failed to save: ' + e.message, 'error'); }
         }
@@ -1317,6 +1596,7 @@
                 id: String(row.id),
                 channel: row.channel_id,
                 user: row.sender_name || 'Unknown',
+                senderId: row.sender_id ? String(row.sender_id) : '',
                 avatarColor: safeAvatarColor(row.avatar_color),
                 badge: row.badge || 'MEMBER',
                 content: row.content || '',
@@ -1367,6 +1647,29 @@
                 reply_to_user: reply && reply.user ? String(reply.user) : null,
                 reply_to_content: reply && reply.content ? String(reply.content) : null
             };
+        }
+
+        async function insertChatMessageRow(message) {
+            const row = chatMessageToRow(message);
+            const { data, error } = await supabaseClient
+                .from(CHAT_MESSAGES_TABLE)
+                .insert(row)
+                .select('*')
+                .single();
+            if (!error) return data;
+            if (error.code === '23505') {
+                // A prior request may have committed before its response was
+                // lost. Treat the caller's own existing row as an idempotent
+                // success instead of using upsert to rewrite it.
+                const { data: existing, error: lookupError } = await supabaseClient
+                    .from(CHAT_MESSAGES_TABLE)
+                    .select('*')
+                    .eq('id', row.id)
+                    .eq('sender_id', currentUserId)
+                    .maybeSingle();
+                if (!lookupError && existing && existing.channel_id === row.channel_id) return existing;
+            }
+            throw error;
         }
 
         function upsertChatMessage(message, options = {}) {
@@ -1473,21 +1776,29 @@
             if (!payload || !payload.eventType) return;
             if (payload.eventType === 'DELETE') {
                 const oldRow = payload.old || {};
-                if (oldRow.username_key) {
-                    appState.users = appState.users.filter(entry =>
-                        entry.key !== oldRow.username_key && entry.email !== oldRow.username_key);
-                    persistState();
-                    renderUserDirectory();
-                }
+                if (oldRow.id) directoryCache.delete(String(oldRow.id));
                 return;
             }
-            const entry = profileEntryFromRow(payload.new);
-            if (!entry) return;
-            appState.users = appState.users.filter(existing => existing.email !== entry.email);
-            if (!entry.removed) appState.users.push(entry);
-            appState.users = normalizeUserDirectory(appState.users);
-            persistState();
-            renderUserDirectory();
+            const row = payload.new;
+            if (!row || !row.id) return;
+            const entry = profileCacheFromRow(row);
+            if (entry) directoryCache.set(entry.id, entry);
+            if (String(row.id) === currentUserId) {
+                let touched = false;
+                if (row.username && row.username !== activeChatUsername) {
+                    activeChatUsername = row.username;
+                    localStorage.setItem('alec_chat_user', activeChatUsername);
+                    touched = true;
+                }
+                if (row.avatar_color && safeAvatarColor(row.avatar_color) !== activeAvatarColor) {
+                    activeAvatarColor = safeAvatarColor(row.avatar_color);
+                    localStorage.setItem('alec_chat_color', activeAvatarColor);
+                    touched = true;
+                }
+                if (touched) updateSidebarIdentity();
+            }
+            renderDmList();
+            renderMobileStrip();
         }
 
         async function refreshChatFromSupabase(options = {}) {
@@ -1511,7 +1822,7 @@
                     currentChannel = appState.channels[0];
                 }
 
-                await pullDirectoryProfiles();
+                await hydrateImageUrls(appState.chatMessages.slice(-CHAT_MESSAGE_FETCH_LIMIT * appState.channels.length));
 
                 let messageRows = [];
                 if (initial || !lastChatSyncAt) {
@@ -1581,14 +1892,13 @@
                 const missingTables = isMissingDmTable(e) ||
                     /Could not find the table|relation .* does not exist/i.test(String(e.message || e));
                 if (missingTables) {
-                    log('SUPABASE', 'Chat tables are missing. Run supabase/reset.sql in Supabase.', 'error');
+                    log('SUPABASE', 'Backend tables missing. Apply supabase/migrations/*.sql (see README).', 'error');
                 } else {
                     log('SUPABASE', `Chat load failed: ${e.message || e}`, 'error');
                 }
                 return false;
             } finally {
                 chatLoading = false;
-                flushPendingProfileWrites();
             }
         }
 
@@ -1638,25 +1948,39 @@
             return dmConversations.find(c => String(c.id) === String(id)) || null;
         }
 
+        function participantIds(conv) {
+            return ((conv && conv.participants) || []).map(p =>
+                (p && typeof p === 'object') ? String(p.id) : String(p)).filter(Boolean);
+        }
+
+        function participantUsernames(conv) {
+            return ((conv && conv.participants) || []).map(p =>
+                (p && typeof p === 'object') ? String(p.username || '') : String(p)).filter(Boolean);
+        }
+
         function isDmParticipant(conv) {
-            if (!conv || !activeChatUsername) return false;
-            const target = normalizeDmName(activeChatUsername);
-            return (conv.participants || []).some(p => normalizeDmName(p) === target);
+            if (!conv || !currentUserId) return false;
+            return participantIds(conv).includes(String(currentUserId));
         }
 
         function dmConversationTitle(conv) {
             if (!conv) return '';
             const participants = Array.isArray(conv.participants) ? conv.participants : [];
             if (conv.kind === 'direct') {
-                const other = participants.find(p => normalizeDmName(p) !== normalizeDmName(activeChatUsername));
-                return other || participants[0] || 'Direct message';
+                const other = participants.find(p =>
+                    (p && typeof p === 'object') ? (String(p.id) !== String(currentUserId)) : (normalizeDmName(p) !== normalizeDmName(activeChatUsername)));
+                const name = (other && typeof other === 'object') ? other.username : other;
+                return name || 'Direct message';
             }
-            return String(conv.name || '').trim() || participants.filter(Boolean).join(', ') || 'Group conversation';
+            return String(conv.name || '').trim() || participantUsernames(conv).filter(Boolean).join(', ') || 'Group conversation';
         }
 
         function dmOtherParticipant(conv) {
-            if (!conv || conv.kind !== 'direct') return '';
-            return (conv.participants || []).find(p => normalizeDmName(p) !== normalizeDmName(activeChatUsername)) || '';
+            if (!conv || conv.kind !== 'direct') return null;
+            const participants = Array.isArray(conv.participants) ? conv.participants : [];
+            const other = participants.find(p =>
+                (p && typeof p === 'object') ? (String(p.id) !== String(currentUserId)) : (normalizeDmName(p) !== normalizeDmName(activeChatUsername)));
+            return other || null;
         }
 
         function isUserOnline(name) {
@@ -1751,9 +2075,7 @@
 
         function normalizeDmConversation(row) {
             if (!row || row.id === undefined || row.id === null) return null;
-            const participants = Array.isArray(row.participants)
-                ? row.participants.map(p => String(p)).filter(Boolean)
-                : [];
+            const participants = Array.isArray(row.participants) ? row.participants.filter(Boolean) : [];
             return {
                 id: String(row.id),
                 kind: row.kind === 'group' ? 'group' : 'direct',
@@ -1771,6 +2093,7 @@
             return {
                 id: String(row.id),
                 user: String(row.sender_name || row.sender || 'Unknown'),
+                senderId: row.sender_id ? String(row.sender_id) : '',
                 avatarColor: safeAvatarColor(row.avatar_color),
                 badge: row.badge || 'MEMBER',
                 content: typeof row.content === 'string' ? row.content : '',
@@ -1835,12 +2158,14 @@
         }
 
         function conversationUnreadCount(conv) {
-            if (!conv || !activeChatUsername) return 0;
+            if (!conv || !currentUserId) return 0;
             const lastRead = Number(dmLastRead[conv.id]) || 0;
-            return getDmMessages(conv.id).filter(m =>
-                messageTimestamp(m) > lastRead &&
-                normalizeDmName(m.user) !== normalizeDmName(activeChatUsername)
-            ).length;
+            return getDmMessages(conv.id).filter(m => {
+                const mine = m.senderId
+                    ? String(m.senderId) === String(currentUserId)
+                    : normalizeDmName(m.user) === normalizeDmName(activeChatUsername);
+                return messageTimestamp(m) > lastRead && !mine;
+            }).length;
         }
 
         function loadDmLastRead() {
@@ -1858,7 +2183,7 @@
         }
 
         function markDmRead(conversationId) {
-            if (!conversationId || !activeChatUsername) return;
+            if (!conversationId || !currentUserId) return;
             const id = String(conversationId);
             const messages = getDmMessages(id);
             const latest = messages.length ? messageTimestamp(messages[messages.length - 1]) : 0;
@@ -1874,7 +2199,7 @@
                     .from(DM_MEMBERS_TABLE)
                     .update({ last_read_at: new Date(stamp).toISOString() })
                     .eq('conversation_id', id)
-                    .eq('member_key', normalizeDmName(activeChatUsername))
+                    .eq('member_id', currentUserId)
                     .then(result => {
                         if (result && result.error) {
                             log('DM', 'Read receipt failed: ' + result.error.message, 'warn');
@@ -1907,7 +2232,12 @@
 
         function sameDmParticipantSet(first, second) {
             const key = list => (Array.isArray(list) ? list : [])
-                .map(normalizeDmName).filter(Boolean).sort().join('\u0000');
+                .map(p => {
+                    const id = typeof p === 'object' && p ? String(p.id || '') : '';
+                    if (id) return 'id:' + id;
+                    return 'name:' + normalizeDmName(p);
+                })
+                .filter(Boolean).sort().join('\u0000');
             return key(first) === key(second);
         }
 
@@ -2194,7 +2524,7 @@
             });
             const nodes = [];
             while (walker.nextNode()) nodes.push(walker.currentNode);
-            const mentionRe = /(^|[^A-Za-z0-9_])@([A-Za-z0-9_.-]{1,25})/g;
+            const mentionRe = /(^|[^A-Za-z0-9_])@([A-Za-z0-9_.-]{1,32})/g;
             nodes.forEach(node => {
                 const text = node.nodeValue;
                 let match;
@@ -2410,7 +2740,7 @@
                 return;
             }
             if (dmSetupMissing) {
-                container.innerHTML = '<div class="dm-empty">Run supabase/reset.sql in Supabase to enable DMs.</div>';
+                container.innerHTML = '<div class="dm-empty">Backend tables missing. Apply supabase/migrations/*.sql (see README).</div>';
                 return;
             }
             const conversations = dmConversations.filter(isDmParticipant)
@@ -2460,20 +2790,80 @@
             strip.appendChild(newBtn);
         }
 
-        function getDmCandidateUsers() {
+        // DM people picker: candidates come from the `profiles` registry
+        // (display names of accounts that have joined at least once), not
+        // from chat traffic. Search hits the table directly; the local
+        // cache supplies presence/known-people without extra queries.
+        let dmCandidateList = [];
+        let dmCandidateFetchTimer = null;
+
+        function localProfileCandidates() {
             const seen = new Map();
-            const add = name => {
-                const display = String(name || '').trim();
-                const key = normalizeDmName(display);
-                if (!key || key === normalizeDmName(activeChatUsername) || display === 'System') return;
-                if (!seen.has(key)) seen.set(key, display);
+            const add = uid => {
+                const entry = directoryCache.get(String(uid));
+                if (!entry || !entry.username) return;
+                if (String(uid) === String(currentUserId)) return;
+                if (!seen.has(String(uid))) seen.set(String(uid), entry);
             };
-            onlineUsers.forEach((_, name) => add(name));
-            appState.chatMessages.forEach(message => add(message.user));
-            dmConversations.forEach(conv => (conv.participants || []).forEach(add));
+            dmConversations.forEach(conv => (conv.participants || []).forEach(p => add(typeof p === 'object' ? p.id : p)));
+            appState.chatMessages.forEach(message => add(message.senderId));
+            onlineUsers.forEach((_, name) => {
+                directoryCache.forEach(entry => {
+                    if (entry.username && normalizeDmName(entry.username) === normalizeDmName(name)) add(entry.id);
+                });
+            });
             return [...seen.entries()]
-                .map(([key, name]) => ({ key, name, online: isUserOnline(name) }))
-                .sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));
+                .map(([uid, entry]) => ({
+                    id: String(uid),
+                    username: entry.username,
+                    avatarColor: entry.avatarColor,
+                    online: isUserOnline(entry.username)
+                }))
+                .sort((a, b) => (b.online - a.online) || a.username.localeCompare(b.username));
+        }
+
+        async function fetchDmCandidates(term) {
+            const needle = String(term || '').trim();
+            let results = [];
+            if (needle) {
+                results = await searchDirectoryProfiles(needle, 25);
+            } else {
+                results = localProfileCandidates();
+                if (results.length < 12) {
+                    // Seed the picker with a few newest profiles when the
+                    // local cache is thin (first visit / quiet chat).
+                    const extra = await searchDirectoryProfiles('', 12);
+                    const known = new Set(results.map(p => p.id).concat(dmSelectedUsers.map(p => p.id)));
+                    extra.forEach(p => { if (!known.has(p.id)) results.push(Object.assign({ online: isUserOnline(p.username) }, p)); });
+                }
+            }
+            const selected = new Set(dmSelectedUsers.map(p => String(p.id)));
+            dmCandidateList = results
+                .map(p => ({
+                    id: String(p.id),
+                    username: String(p.username || ''),
+                    avatarColor: p.avatarColor,
+                    online: p.online === true || isUserOnline(p.username)
+                }))
+                .filter(p => p.username && !selected.has(p.id));
+            const search = document.getElementById('dmUserSearch');
+            renderDmCandidates(search ? search.value : '');
+        }
+
+        function scheduleDmCandidateFetch(term) {
+            clearTimeout(dmCandidateFetchTimer);
+            const needle = String(term || '').trim();
+            // No query: render instantly from cache, then top up.
+            if (!needle) {
+                const selected = new Set(dmSelectedUsers.map(p => String(p.id)));
+                dmCandidateList = localProfileCandidates().filter(p => !selected.has(p.id));
+                renderDmCandidates('');
+                if (dmCandidateList.length < 12) {
+                    dmCandidateFetchTimer = setTimeout(() => fetchDmCandidates(''), 200);
+                }
+                return;
+            }
+            dmCandidateFetchTimer = setTimeout(() => fetchDmCandidates(needle), 200);
         }
 
         function renderDmCandidates(filter = '') {
@@ -2481,15 +2871,14 @@
             if (!list) return;
             list.innerHTML = '';
             const query = String(filter || '').trim().toLowerCase();
-            const selectedKeys = new Set(dmSelectedUsers.map(normalizeDmName));
-            const candidates = getDmCandidateUsers().filter(person =>
-                !selectedKeys.has(person.key) &&
-                (!query || person.name.toLowerCase().includes(query))
-            );
+            const candidates = dmCandidateList.filter(person =>
+                !query || person.username.toLowerCase().includes(query));
             if (candidates.length === 0) {
                 const empty = document.createElement('div');
                 empty.className = 'dm-empty';
-                empty.textContent = query ? 'No matching people.' : 'No one else is available yet. People appear here after they join or send a message.';
+                empty.textContent = query
+                    ? 'No matching people.'
+                    : 'No other members yet. People appear here after they join the chat.';
                 list.appendChild(empty);
                 return;
             }
@@ -2498,10 +2887,10 @@
                 row.type = 'button';
                 row.className = 'dm-user-row';
                 row.innerHTML = `
-                    <span class="dm-avatar">${escapeHtml(person.name.charAt(0).toUpperCase())}${person.online ? '<span class="dm-online-dot"></span>' : ''}</span>
-                    <span class="min-w-0 flex-1 truncate">${escapeHtml(person.name)}</span>
-                    <span class="dm-user-status">${person.online ? 'online' : 'seen'}</span>`;
-                row.onclick = () => window.toggleDmCandidate(person.name);
+                    <span class="dm-avatar ${person.avatarColor ? safeAvatarColor(person.avatarColor) + ' text-white' : ''}">${escapeHtml(person.username.charAt(0).toUpperCase())}${person.online ? '<span class="dm-online-dot"></span>' : ''}</span>
+                    <span class="min-w-0 flex-1 truncate">${escapeHtml(person.username)}</span>
+                    <span class="dm-user-status">${person.online ? 'online' : 'offline'}</span>`;
+                row.onclick = () => window.toggleDmCandidate(person.id, person.username);
                 list.appendChild(row);
             });
         }
@@ -2513,20 +2902,21 @@
             const hint = document.getElementById('dmModalHint');
             if (container) {
                 container.innerHTML = '';
-                dmSelectedUsers.forEach(name => {
+                dmSelectedUsers.forEach(person => {
                     const chip = document.createElement('span');
                     chip.className = 'dm-chip';
-                    chip.innerHTML = `<span>${escapeHtml(name)}</span><button type="button" title="Remove ${escapeHtml(name)}" aria-label="Remove ${escapeHtml(name)}">×</button>`;
-                    chip.querySelector('button').onclick = () => window.removeDmCandidate(name);
+                    chip.innerHTML = `<span>${escapeHtml(person.username)}</span><button type="button" title="Remove ${escapeHtml(person.username)}" aria-label="Remove ${escapeHtml(person.username)}">×</button>`;
+                    chip.querySelector('button').onclick = () => window.removeDmCandidate(person.id);
                     container.appendChild(chip);
                 });
             }
             if (groupName) groupName.classList.toggle('hidden', dmSelectedUsers.length < 2);
             if (createBtn) createBtn.disabled = dmSelectedUsers.length === 0;
             if (hint) {
-                if (dmSetupMissing) hint.textContent = 'Chat tables are not set up yet. Run supabase/reset.sql in Supabase first.';
+                if (isAnonymousIdentity) hint.textContent = 'Verify an email (identity menu) to unlock direct messages.';
+                else if (dmSetupMissing) hint.textContent = 'Backend tables missing. Apply supabase/migrations/*.sql (see README).';
                 else if (dmSelectedUsers.length === 0) hint.textContent = 'Pick one person for a 1:1 chat, or several people for a group DM.';
-                else if (dmSelectedUsers.length === 1) hint.textContent = `Start a 1:1 conversation with ${dmSelectedUsers[0]}.`;
+                else if (dmSelectedUsers.length === 1) hint.textContent = `Start a 1:1 conversation with ${dmSelectedUsers[0].username}.`;
                 else hint.textContent = `Start a group conversation with ${dmSelectedUsers.length} people.`;
             }
         }
@@ -2538,9 +2928,12 @@
             const groupName = document.getElementById('dmGroupName');
             if (search) search.value = '';
             if (groupName) groupName.value = '';
+            const banner = document.getElementById('dmVerifyBanner');
+            if (banner) banner.classList.toggle('hidden', !isAnonymousIdentity);
             renderDmCandidates('');
             renderDmSelectedUsers();
             renderDmModalConversations();
+            scheduleDmCandidateFetch('');
             const modal = document.getElementById('dmModal');
             if (modal) modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -2552,17 +2945,19 @@
             if (modal) modal.classList.add('hidden');
             document.body.style.overflow = '';
             dmSelectedUsers = [];
+            clearTimeout(dmCandidateFetchTimer);
         };
 
         window.filterDmCandidates = function(value) {
             renderDmCandidates(value);
+            scheduleDmCandidateFetch(value);
         };
 
-        window.toggleDmCandidate = function(name) {
-            const display = String(name || '').trim();
-            const key = normalizeDmName(display);
-            if (!key) return;
-            const existing = dmSelectedUsers.findIndex(n => normalizeDmName(n) === key);
+        window.toggleDmCandidate = function(id, username) {
+            const uid = String(id || '');
+            const name = String(username || '').trim();
+            if (!uid || !name) return;
+            const existing = dmSelectedUsers.findIndex(p => String(p.id) === uid);
             if (existing >= 0) {
                 dmSelectedUsers.splice(existing, 1);
             } else {
@@ -2570,16 +2965,19 @@
                     chatToast(`You can add up to ${DM_MAX_SELECTED_USERS} people`, true);
                     return;
                 }
-                dmSelectedUsers.push(display);
+                dmSelectedUsers.push({ id: uid, username: name });
+                directoryCache.set(uid, Object.assign({}, directoryCache.get(uid) || {}, {
+                    id: uid, username: name
+                }));
             }
             const search = document.getElementById('dmUserSearch');
             renderDmCandidates(search ? search.value : '');
             renderDmSelectedUsers();
         };
 
-        window.removeDmCandidate = function(name) {
-            const key = normalizeDmName(name);
-            dmSelectedUsers = dmSelectedUsers.filter(n => normalizeDmName(n) !== key);
+        window.removeDmCandidate = function(id) {
+            const uid = String(id || '');
+            dmSelectedUsers = dmSelectedUsers.filter(p => String(p.id) !== uid);
             const search = document.getElementById('dmUserSearch');
             renderDmCandidates(search ? search.value : '');
             renderDmSelectedUsers();
@@ -2595,22 +2993,23 @@
 
         window.createDmFromSelection = async function() {
             if (!activeChatUsername) { chatToast('Join the chat first', true); return; }
+            if (isAnonymousIdentity) {
+                chatToast('Verify an email to use direct messages', true);
+                window.openVerifyEmailModal();
+                return;
+            }
             if (dmSelectedUsers.length === 0) { chatToast('Pick at least one person', true); return; }
             if (!supabaseClient || !supabaseLive) { chatToast('Direct messages need Supabase', true); return; }
-            const participants = [activeChatUsername];
-            dmSelectedUsers.forEach(name => {
-                if (!participants.some(p => normalizeDmName(p) === normalizeDmName(name))) participants.push(name);
-            });
             const isGroup = dmSelectedUsers.length > 1;
             const groupName = document.getElementById('dmGroupName');
             const button = document.getElementById('dmCreateBtn');
+            const memberIds = dmSelectedUsers.map(p => String(p.id));
             if (button) { button.disabled = true; button.style.opacity = '0.6'; }
             try {
                 const { data, error } = await supabaseClient.rpc('create_dm_conversation', {
                     p_kind: isGroup ? 'group' : 'direct',
-                    p_name: isGroup ? ((groupName && groupName.value.trim()) || dmSelectedUsers.join(', ')) : '',
-                    p_created_by: activeChatUsername,
-                    p_members: participants
+                    p_name: isGroup ? ((groupName && groupName.value.trim()) || dmSelectedUsers.map(p => p.username).join(', ')) : '',
+                    p_members: memberIds
                 });
                 if (error) throw error;
                 const id = String(data || '');
@@ -2619,13 +3018,16 @@
                 window.closeDmModal();
                 if (id) window.switchDm(id);
                 chatToast(isGroup ? 'Group conversation started' : 'Direct message started');
-                log('DM', `Created ${isGroup ? 'group' : 'direct'} conversation with ${dmSelectedUsers.join(', ')}`, 'success');
+                log('DM', `Created ${isGroup ? 'group' : 'direct'} conversation with ${dmSelectedUsers.map(p => p.username).join(', ')}`, 'success');
             } catch (error) {
                 if (isMissingDmTable(error)) {
                     dmSetupMissing = true;
                     renderDmList();
                     renderDmSelectedUsers();
                     chatToast('DM tables are not set up yet', true);
+                } else if ((error.message || '').includes('verify your email')) {
+                    chatToast('Verify an email to use direct messages', true);
+                    window.openVerifyEmailModal();
                 } else {
                     chatToast('Could not start conversation: ' + (error.message || 'network error'), true);
                     log('DM', 'Conversation create failed: ' + (error.message || error), 'error');
@@ -2636,13 +3038,23 @@
         };
 
         async function loadDmData() {
-            if (!supabaseClient || !supabaseLive || !activeChatUsername || dmLoading) return;
+            if (!supabaseClient || !supabaseLive || !currentUserId || dmLoading) return;
+            if (isAnonymousIdentity) {
+                // Anonymous sessions hold zero DM rows by RLS anyway; skip
+                // the queries entirely.
+                dmConversations = [];
+                dmSetupMissing = false;
+                renderNavigation();
+                updateViewChrome();
+                renderDiscordMessages();
+                return;
+            }
             dmLoading = true;
             try {
                 const { data: membershipRows, error: membershipError } = await supabaseClient
                     .from(DM_MEMBERS_TABLE)
-                    .select('conversation_id, last_read_at')
-                    .eq('member_key', normalizeDmName(activeChatUsername));
+                    .select('conversation_id, member_id, last_read_at')
+                    .eq('member_id', currentUserId);
                 if (membershipError) throw membershipError;
 
                 const ids = (membershipRows || []).map(row => String(row.conversation_id)).filter(Boolean);
@@ -2664,17 +3076,26 @@
                         .order('updated_at', { ascending: false }),
                     supabaseClient
                         .from(DM_MEMBERS_TABLE)
-                        .select('conversation_id, member_name, last_read_at')
+                        .select('conversation_id, member_id, last_read_at')
                         .in('conversation_id', ids)
                 ]);
                 if (conversationResult.error) throw conversationResult.error;
                 if (memberResult.error) throw memberResult.error;
 
+                // Refresh the display-name cache for everyone we are
+                // conversing with, then build {id, username} participants.
+                await fetchProfilesByIds((memberResult.data || []).map(row => row.member_id));
+
                 const membersByConversation = new Map();
                 (memberResult.data || []).forEach(row => {
                     const key = String(row.conversation_id);
                     if (!membersByConversation.has(key)) membersByConversation.set(key, []);
-                    membersByConversation.get(key).push(String(row.member_name));
+                    const uid = String(row.member_id);
+                    const entry = directoryCache.get(uid);
+                    membersByConversation.get(key).push({
+                        id: uid,
+                        username: (entry && entry.username) || 'Unknown'
+                    });
                 });
 
                 const lastReadByConversation = new Map();
@@ -2726,6 +3147,12 @@
                     messages.forEach(message => upsertDmMessage(conversationId, message));
                 });
 
+                // Private bucket: resolve short-lived signed URLs for anything
+                // not already holding a fresh one.
+                for (const convId of ids) {
+                    await hydrateImageUrls(getDmMessages(convId));
+                }
+
                 dmSetupMissing = false;
                 renderNavigation();
                 updateViewChrome();
@@ -2751,7 +3178,7 @@
             } catch (error) {
                 if (isMissingDmTable(error)) {
                     dmSetupMissing = true;
-                    log('DM', 'DM tables missing; run supabase/reset.sql', 'warn');
+                    log('DM', 'DM tables missing; apply supabase/migrations/*.sql', 'warn');
                     renderNavigation();
                 } else {
                     log('DM', 'Load failed: ' + (error.message || error), 'warn');
@@ -2799,15 +3226,17 @@
             const row = payload.new || {};
             const oldRow = payload.old || {};
             const conversationId = String(row.conversation_id || oldRow.conversation_id || '');
-            // member_key is the primary-key column, so it is always present in
-            // payload.old (member_name may be omitted without REPLICA IDENTITY FULL).
-            const memberName = String(row.member_name || oldRow.member_name || oldRow.member_key || '');
+            // member_id is the primary-key column, so it is always present in
+            // payload.old (no REPLICA IDENTITY needed).
+            const memberId = String(row.member_id || oldRow.member_id || '');
             if (!conversationId) { scheduleDmReload(); return; }
             const conv = dmConversationById(conversationId);
-            if (!conv) { scheduleDmReload(); return; }
-            const isOurMembership = normalizeDmName(memberName) === normalizeDmName(activeChatUsername);
-            if (isOurMembership) {
-                // INSERT/DELETE changes access; an UPDATE is usually just last_read_at.
+            if (memberId === String(currentUserId)) {
+                if (!conv) {
+                    // We became (or stopped being) a member: access changed.
+                    scheduleDmReload();
+                    return;
+                }
                 if (payload.eventType === 'UPDATE') {
                     const stamp = Date.parse(row.last_read_at || '') || 0;
                     if (stamp > (Number(dmLastRead[conversationId]) || 0)) {
@@ -2816,17 +3245,30 @@
                         renderDmList();
                         renderMobileStrip();
                     }
-                } else {
+                } else if (payload.eventType === 'DELETE') {
                     scheduleDmReload();
                 }
                 return;
             }
+            if (!conv) { scheduleDmReload(); return; }
+            const entry = directoryCache.get(memberId);
+            const username = (entry && entry.username) || 'Unknown';
             if (payload.eventType === 'DELETE') {
                 conv.participants = (conv.participants || [])
-                    .filter(p => normalizeDmName(p) !== normalizeDmName(memberName));
-            } else if (memberName && !(conv.participants || [])
-                .some(p => normalizeDmName(p) === normalizeDmName(memberName))) {
-                conv.participants = (conv.participants || []).concat(memberName);
+                    .filter(p => !p || String(p.id) !== memberId);
+            } else if (memberId && !(conv.participants || [])
+                .some(p => p && String(p.id) === memberId)) {
+                conv.participants = (conv.participants || []).concat({ id: memberId, username });
+                fetchProfilesByIds([memberId]).then(() => {
+                    const fresh = directoryCache.get(memberId);
+                    if (fresh) {
+                        conv.participants = (conv.participants || []).map(p =>
+                            (p && String(p.id) === memberId) ? { id: memberId, username: fresh.username } : p);
+                        renderDmList();
+                        renderMobileStrip();
+                        updateViewChrome();
+                    }
+                });
             }
             renderDmList();
             renderMobileStrip();
@@ -2854,8 +3296,21 @@
             if (!message) return;
             const wasKnown = getDmMessages(conversationId).some(m => String(m.id) === String(message.id));
             upsertDmMessage(conversationId, message);
+            hydrateImageUrls([message]).then(() => {
+                // Re-render only if the hydrated object is still the one stored.
+                const stored = getDmMessages(conversationId).find(m => String(m.id) === String(message.id));
+                if (stored && stored.imageUrl !== message.imageUrl) {
+                    stored.imageUrl = message.imageUrl;
+                    stored.imageThumbUrl = message.imageThumbUrl;
+                    stored.imageExpires = message.imageExpires;
+                    if (activeDmId === conversationId) renderDiscordMessages();
+                }
+            });
             const conv = dmConversationById(conversationId);
-            if (!wasKnown && normalizeDmName(message.user) !== normalizeDmName(activeChatUsername)) {
+            const mine = message.senderId
+                ? String(message.senderId) === String(currentUserId)
+                : normalizeDmName(message.user) === normalizeDmName(activeChatUsername);
+            if (!wasKnown && !mine) {
                 playChatPing();
                 maybeNotifyDm(message, conv);
             }
@@ -2998,7 +3453,7 @@
                     const thumbUrl = (typeof m.imageThumbUrl === 'string' && /^https:\/\//i.test(m.imageThumbUrl)) ? m.imageThumbUrl : imageUrl;
                     const imageExpires = Number(m.imageExpires) || 0;
                     const imageExpired = imageExpires && (Date.now() / 1000 > imageExpires);
-                    const imageExpiredLabel = `Image expired (${CHAT_IMAGE_RETENTION_DAYS}-day retention)`;
+                    const imageExpiredLabel = 'Image link expired — reopen the chat to refresh it';
                     const imageHtml = imageUrl ? (imageExpired
                         ? `<div class="chat-image-expired">${imageExpiredLabel}</div>`
                         : `<div class="chat-image-wrap"><a href="${escapeHtml(imageUrl)}" class="chat-message-image-link" onclick="if(event.metaKey||event.ctrlKey||event.shiftKey)return; event.preventDefault(); window.openChatLightbox(this.getAttribute('href'));" title="Open image"><img src="${escapeHtml(thumbUrl)}" data-full-image="${escapeHtml(imageUrl)}" class="chat-message-image" alt="${escapeHtml(m.imageName || 'Shared image')}" loading="lazy" referrerpolicy="no-referrer" onerror="window.handleChatImageError(this)"></a><button type="button" class="chat-image-copy" onclick="event.stopPropagation(); window.copyChatImageLink(this.closest('.chat-message').getAttribute('data-message-id'))" title="Copy image link" aria-label="Copy image link">Copy link</button></div>`) : '';
@@ -3335,7 +3790,7 @@
             return channel
                 .on('postgres_changes', { event: '*', schema: 'public', table: CHAT_CHANNELS_TABLE }, payload => queueChatEvent(() => handleChatChannelEvent(payload)))
                 .on('postgres_changes', { event: '*', schema: 'public', table: CHAT_MESSAGES_TABLE }, payload => queueChatEvent(() => handleChatMessageEvent(payload)))
-                .on('postgres_changes', { event: '*', schema: 'public', table: CHAT_PROFILES_TABLE }, payload => queueChatEvent(() => handleChatProfileEvent(payload)));
+                .on('postgres_changes', { event: '*', schema: 'public', table: PROFILES_TABLE }, payload => queueChatEvent(() => handleChatProfileEvent(payload)));
         }
 
         function onSupabaseUp() {
@@ -3354,9 +3809,9 @@
             if (activeChatUsername) {
                 loadDmLastRead();
                 handleChatDeepLink();
+                loadDmData();
             }
             refreshChatFromSupabase({ full: !chatInitialLoaded });
-            flushPendingProfileWrites();
             // Safety net: catch any event the socket dropped while connected.
             if (!chatSyncTimer) {
                 chatSyncTimer = setInterval(() => {
@@ -3365,10 +3820,6 @@
                         if (activeChatUsername) loadDmData();
                     }
                 }, 60000);
-            }
-            setTimeout(() => { cleanupExpiredChatImages(); }, 4000);
-            if (!imageCleanupTimer) {
-                imageCleanupTimer = setInterval(() => { cleanupExpiredChatImages(); }, CHAT_IMAGE_CLEANUP_INTERVAL_MS);
             }
         }
 
@@ -3396,11 +3847,42 @@
                 }
                 if (!supabaseClient) {
                     supabaseClient = window.supabase.createClient(cfg.url, cfg.key, {
-                        auth: { persistSession: false, autoRefreshToken: false },
+                        auth: { persistSession: true, autoRefreshToken: true },
                         realtime: { params: { eventsPerSecond: 20 } }
+                    });
+                    supabaseClient.auth.onAuthStateChange((evt, session) => {
+                        if (authUser && session && session.user && session.user.id === authUser.id) {
+                            const wasAnon = isAnonymousIdentity;
+                            refreshAuthUser().then(() => {
+                                refreshIdentityUi();
+                                updateSidebarIdentity();
+                                if (wasAnon && !isAnonymousIdentity) {
+                                    chatToast('Email verified — direct messages unlocked');
+                                    log('AUTH', 'Identity upgraded: email verified', 'success');
+                                    dmSetupMissing = false;
+                                    loadDmData();
+                                }
+                            });
+                        } else {
+                            applyAuthSession(session);
+                        }
                     });
                 }
                 log('SUPABASE', `Connecting to ${cfg.url}`, 'info');
+
+                // Identity FIRST: every SQL and Realtime call is RLS-evaluated
+                // against these claims, and profiles/DMs need them to exist.
+                try {
+                    const { data, error } = await supabaseClient.auth.getSession();
+                    if (error) throw error;
+                    await applyAuthSession(data ? data.session : null);
+                } catch (e) {
+                    log('AUTH', 'Identity boot failed: ' + (e.message || e), 'error');
+                    showAuthScreen('Could not get a chat session: ' + (e.message || e));
+                    supabaseConnecting = false;
+                    updateConnStatus();
+                    return;
+                }
 
                 // Subscribe FIRST, then fetch. Changes during the fetch are
                 // delivered live or queued, so there is no read/subscribe gap.
@@ -3513,7 +3995,7 @@
             const feed = document.getElementById('terminalLogFeed');
             if (!feed) return;
             const roleEl=document.getElementById('logUserRole'), chCountEl=document.getElementById('logChannelCount'), msgCountEl=document.getElementById('logMsgCount'), totalCountEl=document.getElementById('logTotalCount');
-            if (roleEl) roleEl.innerText = isUserAdmin ? 'ADMIN (onering)' : 'GUEST';
+            if (roleEl) roleEl.innerText = isUserAdmin ? 'ADMIN' : (isAnonymousIdentity ? 'ANON' : 'MEMBER');
             if (chCountEl) chCountEl.innerText = appState.channels.length;
             if (msgCountEl) msgCountEl.innerText = appState.chatMessages.length;
             if (totalCountEl) totalCountEl.innerText = systemLogs.length;
@@ -3734,45 +4216,18 @@
             window.frontToast('Select the statements that apply to the quote.');
         };
 
-        function setChatEmailHint(message, tone) {
-            const hint = document.getElementById('chatEmailHint');
-            if (!hint) return;
-            hint.textContent = message;
-            hint.classList.toggle('text-teal-300', tone === 'ok');
-            hint.classList.toggle('text-red-400', tone === 'error');
-            hint.classList.toggle('text-gray-500', !tone);
-        }
+        // ------------------------------------------------------------
+        // ADMIN CONSOLE (read-only Members viewer)
+        // The onering passkey is a UI gate only — the backend already
+        // enforces every admin action via RLS. Members are Supabase
+        // auth accounts; the console shows profiles, never emails.
+        // ------------------------------------------------------------
+        let membersListCache = [];
+        let membersListTimer = null;
 
-        window.handleChatEmailInput = function(val) {
-            const email = normalizeEmail(val);
-            const nameInput = document.getElementById('chatUsernameInput');
-            if (!email) {
-                setChatEmailHint('Required. The same email is always the same user; your display name is the only thing others see.');
-                return;
-            }
-            if (!isValidEmail(email)) {
-                setChatEmailHint('Enter a valid email address.', 'error');
-                return;
-            }
-            const entry = findDirectoryUser(email);
-            if (!entry) {
-                setChatEmailHint('New email — pick a display name below. Others will only see that name.', 'ok');
-                return;
-            }
-            if (entry.displayName) {
-                if (nameInput) nameInput.value = entry.displayName;
-                setChatEmailHint(`Welcome back — display name loaded: ${entry.displayName}.`, 'ok');
-            } else {
-                setChatEmailHint('This email has no display name yet. Pick one below.', 'ok');
-            }
-        };
-
-        function renderUserDirectory() {
-            // Intentionally not exposing the registered emails in the login
-            // autocomplete: the email is private identity, the display name
-            // is the only public alias.
-            const emailInput = document.getElementById('chatEmailInput');
-            if (emailInput && emailInput.value.trim()) window.handleChatEmailInput(emailInput.value);
+        async function loadMembersList() {
+            const rows = await searchDirectoryProfiles('', 200);
+            membersListCache = rows;
             renderUserAdminList();
         }
 
@@ -3780,46 +4235,38 @@
             const list = document.getElementById('userAdminList');
             if (!list) return;
             list.innerHTML = '';
-            const users = activeDirectoryUsers();
-            if (users.length === 0) {
+            if (membersListCache.length === 0) {
                 const empty = document.createElement('div');
                 empty.className = 'dm-empty';
-                empty.textContent = 'No emails in the directory yet. Add one above.';
+                empty.textContent = 'No members have joined yet.';
                 list.appendChild(empty);
                 return;
             }
-            users.forEach(entry => {
+            membersListCache.forEach(entry => {
                 const row = document.createElement('div');
                 row.className = 'flex items-center justify-between gap-2 rounded-lg bg-[#1e1f22] border border-white/5 px-3 py-2';
 
                 const info = document.createElement('div');
                 info.className = 'min-w-0';
-                const emailEl = document.createElement('div');
-                emailEl.className = 'text-xs font-semibold text-white truncate';
-                emailEl.textContent = entry.email;
                 const nameEl = document.createElement('div');
-                nameEl.className = 'text-[11px] ' + (entry.displayName ? 'text-teal-300' : 'text-gray-500 italic');
-                nameEl.textContent = entry.displayName || 'No display name chosen yet';
-                info.appendChild(emailEl);
+                nameEl.className = 'text-xs font-semibold text-white truncate';
+                nameEl.textContent = entry.username || '(no display name)';
+                const metaEl = document.createElement('div');
+                metaEl.className = 'text-[11px] text-gray-500';
+                metaEl.textContent = entry.is_anonymous
+                    ? 'anonymous session (no email verified yet)'
+                    : 'email-verified account';
                 info.appendChild(nameEl);
+                info.appendChild(metaEl);
 
                 const actions = document.createElement('div');
-                actions.className = 'flex items-center gap-1 shrink-0';
-                const clearBtn = document.createElement('button');
-                clearBtn.type = 'button';
-                clearBtn.className = 'text-[10px] font-bold bg-[#383a40] hover:bg-amber-600 text-gray-300 hover:text-white px-2 py-1 rounded transition-colors';
-                clearBtn.textContent = 'Remove user';
-                clearBtn.title = 'Clear this display name so the email can pick a new one';
-                clearBtn.disabled = !entry.displayName;
-                clearBtn.style.opacity = entry.displayName ? '1' : '0.4';
-                clearBtn.onclick = () => window.adminRemoveDirectoryUser(entry.email);
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'text-[10px] font-bold bg-red-950/60 hover:bg-red-600 text-red-300 hover:text-white px-2 py-1 rounded transition-colors';
-                removeBtn.textContent = 'Remove email';
-                removeBtn.onclick = () => window.adminRemoveDirectoryEmail(entry.email);
-                actions.appendChild(clearBtn);
-                actions.appendChild(removeBtn);
+                actions.className = 'flex items-center gap-1 shrink-0 text-[10px] font-bold';
+                const roleEl = document.createElement('span');
+                roleEl.className = entry.is_anonymous
+                    ? 'bg-[#383a40] text-gray-300 px-2 py-1 rounded'
+                    : 'bg-teal-950/60 text-teal-300 px-2 py-1 rounded';
+                roleEl.textContent = entry.is_anonymous ? 'ANON' : 'VERIFIED';
+                actions.appendChild(roleEl);
 
                 row.appendChild(info);
                 row.appendChild(actions);
@@ -3827,13 +4274,49 @@
             });
         }
 
+        window.submitUserAdminPasskey = async function(e) {
+            if (e) e.preventDefault();
+            if (!isUserAdmin) return;
+            const input = document.getElementById('userAdminPasskey');
+            const errorEl = document.getElementById('userAdminGateError');
+            const ok = await verifyAdminPassword((input && input.value) || '');
+            if (!ok) {
+                if (errorEl) errorEl.classList.remove('hidden');
+                if (input) { input.classList.add('border-red-500'); input.focus(); }
+                return;
+            }
+            adminUiUnlocked = true;
+            if (errorEl) errorEl.classList.add('hidden');
+            if (input) input.value = '';
+            const gate = document.getElementById('userAdminGate');
+            const content = document.getElementById('userAdminContent');
+            if (gate) gate.classList.add('hidden');
+            if (content) content.classList.remove('hidden');
+            clearTimeout(membersListTimer);
+            await loadMembersList();
+            log('ADMIN', 'Members console unlocked (UI gate only)', 'success');
+        };
+
         window.openUserAdmin = function() {
             if (!isUserAdmin) return;
-            renderUserAdminList();
             const modal = document.getElementById('userAdminModal');
-            if (modal) modal.classList.remove('hidden');
-            const emailInput = document.getElementById('userAdminEmail');
-            if (emailInput) setTimeout(() => emailInput.focus(), 50);
+            if (!modal) return;
+            if (adminUiUnlocked) {
+                const gate = document.getElementById('userAdminGate');
+                const content = document.getElementById('userAdminContent');
+                if (gate) gate.classList.add('hidden');
+                if (content) content.classList.remove('hidden');
+                clearTimeout(membersListTimer);
+                loadMembersList();
+            } else {
+                const gate = document.getElementById('userAdminGate');
+                const content = document.getElementById('userAdminContent');
+                if (gate) gate.classList.remove('hidden');
+                if (content) content.classList.add('hidden');
+                const input = document.getElementById('userAdminPasskey');
+                if (input) setTimeout(() => input.focus(), 50);
+            }
+            modal.classList.remove('hidden');
         };
 
         window.closeUserAdmin = function() {
@@ -3841,170 +4324,69 @@
             if (modal) modal.classList.add('hidden');
         };
 
-        window.adminAddDirectoryUser = function(e) {
-            if (e) e.preventDefault();
-            if (!isUserAdmin) return;
-            const emailInput = document.getElementById('userAdminEmail');
-            const nameInput = document.getElementById('userAdminName');
-            const email = normalizeEmail(emailInput ? emailInput.value : '');
-            const displayName = (nameInput ? nameInput.value : '').trim().slice(0, 25);
-            if (!isValidEmail(email)) { chatToast('Enter a valid email address', true); if (emailInput) emailInput.focus(); return; }
-            if (normalizeDmName(displayName) === 'onering') { chatToast('That name is reserved for the admin account', true); return; }
-            const existing = findDirectoryUser(email);
-            if (displayName) {
-                const collision = activeDirectoryUsers().find(entry => entry.email !== email && normalizeDmName(entry.displayName) === normalizeDmName(displayName));
-                if (collision) { chatToast('That display name is already taken', true); return; }
-            }
-            const previousKey = existing ? directoryKeyForEntry(existing) : '';
-            const entry = upsertDirectoryUser({
-                email,
-                displayName: displayName || (existing ? existing.displayName : ''),
-                key: email,
-                updatedAt: Date.now(),
-                removed: false
-            });
-            writeDirectoryEntryToSupabase(entry, previousKey);
-            if (emailInput) emailInput.value = '';
-            if (nameInput) nameInput.value = '';
-            persistState();
-            renderUserDirectory();
-            log('ADMIN', `Added email to user directory: ${email}`, 'success');
-            chatToast('Email added to the directory');
-        };
-
-        window.adminRemoveDirectoryUser = function(email) {
-            if (!isUserAdmin) return;
-            const key = normalizeEmail(email);
-            const entry = findDirectoryUser(key);
-            if (!entry) return;
-            if (!confirm(`Remove the display name linked to ${key}? The email will stay in the directory.`)) return;
-            const previousKey = directoryKeyForEntry(entry);
-            const updated = upsertDirectoryUser({ email: key, displayName: '', key: key, updatedAt: Date.now(), removed: false });
-            writeDirectoryEntryToSupabase(updated, previousKey);
-            persistState();
-            renderUserDirectory();
-            log('ADMIN', `Cleared display name for ${key}`, 'warn');
-        };
-
-        window.adminRemoveDirectoryEmail = function(email) {
-            if (!isUserAdmin) return;
-            const key = normalizeEmail(email);
-            const entry = findDirectoryUser(key);
-            if (!entry) return;
-            if (!confirm(`Remove ${key} from the login list entirely?`)) return;
-            const previousKey = directoryKeyForEntry(entry);
-            upsertDirectoryUser({ email: key, displayName: '', key: '', updatedAt: Date.now(), removed: true });
-            deleteDirectoryEntryFromSupabase(previousKey);
-            persistState();
-            renderUserDirectory();
-            log('ADMIN', `Removed email from user directory: ${key}`, 'warn');
-        };
-
-        window.handleChatUsernameInput = function(val) {
-            const trimmed = (val||'').trim().toLowerCase();
-            const passContainer = document.getElementById('adminPasswordContainer');
-            const passInput = document.getElementById('adminPasswordInput');
-            const errorMsg = document.getElementById('adminErrorMsg');
-            if (trimmed === 'onering') {
-                passContainer.classList.remove('hidden'); errorMsg.classList.add('hidden');
-                setTimeout(() => passInput.focus(), 100);
-            } else {
-                passContainer.classList.add('hidden'); errorMsg.classList.add('hidden');
-                if (passInput) passInput.value = '';
-            }
+        window.handleChatUsernameInput = function() {
+            // Display names are validated by the backend (unique, 1-32 chars).
+            // The old client-side uniqueness check is gone: collisions are
+            // resolved automatically with a numeric suffix on join.
         };
 
         window.joinSecretLounge = async function(e) {
             e.preventDefault();
             const userInput = document.getElementById('chatUsernameInput');
-            const emailInput = document.getElementById('chatEmailInput');
-            const passInput = document.getElementById('adminPasswordInput');
-            const errorMsg = document.getElementById('adminErrorMsg');
-            const name = userInput.value.trim();
+            const hint = document.getElementById('chatUsernameHint');
+            const name = (userInput.value || '').trim().slice(0, 32);
             if (!name) return;
 
-            const isAdminLogin = name.toLowerCase() === 'onering';
-            const accountEmail = normalizeEmail(emailInput ? emailInput.value : '');
-            const directoryUser = accountEmail ? findDirectoryUser(accountEmail) : null;
-
-            if (!isAdminLogin) {
-                if (!isValidEmail(accountEmail)) {
-                    setChatEmailHint('A valid email is required to join. It identifies you and is never shown in chat.', 'error');
-                    if (emailInput) emailInput.focus();
-                    log('AUTH', 'Blocked join: missing/invalid email', 'warn');
-                    return;
-                }
-                const collision = activeDirectoryUsers().find(entry =>
-                    entry.email !== accountEmail && normalizeDmName(entry.displayName) === normalizeDmName(name)
-                );
-                if (collision) {
-                    setChatEmailHint(`That display name is already taken. Pick a different one.`, 'error');
-                    log('AUTH', `Blocked duplicate display name: ${name}`, 'warn');
-                    return;
-                }
-            }
-
-            if (isAdminLogin) {
-                const pass = (passInput.value||'').trim();
-                const passwordOk = await verifyAdminPassword(pass);
-                if (!passwordOk) {
-                    errorMsg.classList.remove('hidden'); passInput.classList.add('border-red-500');
-                    log('AUTH','Failed admin login (bad password)','warn'); return;
-                }
-                isUserAdmin = true;
-                activeAvatarColor = 'bg-gradient-to-tr from-teal-500 to-teal-300 text-black';
-                log('AUTH','Admin authenticated as onering','success');
-            } else {
-                isUserAdmin = false;
-                log('AUTH',`Joined as: ${name}`,'info');
-            }
-
-            activeChatUsername = name;
-            localStorage.setItem('alec_chat_user', name);
-            localStorage.setItem('alec_chat_color', activeAvatarColor);
-
-            if (!isAdminLogin && accountEmail) {
-                const previousKey = directoryUser ? directoryKeyForEntry(directoryUser) : '';
-                const updatedEntry = upsertDirectoryUser({ email: accountEmail, displayName: name, key: accountEmail, updatedAt: Date.now(), removed: false });
-                writeDirectoryEntryToSupabase(updatedEntry, previousKey);
-                localStorage.setItem('alec_chat_email_account', accountEmail);
-                persistState();
-                renderUserDirectory();
-                log('AUTH', directoryUser ? `Matched profile: ${accountEmail}` : `Created profile: ${accountEmail}`, 'success');
-            } else if (isAdminLogin) {
-                localStorage.removeItem('alec_chat_email_account');
+            if (!supabaseUserReady() && !joinCaptchaToken) {
+                updateJoinCaptchaHint('Complete the Cloudflare bot check before joining.', true);
+                return;
             }
 
             document.getElementById('discordAuthScreen').classList.add('hidden');
             document.getElementById('discordChatContainer').classList.remove('hidden');
-            document.getElementById('sidebarUsername').innerText = activeChatUsername;
-            document.getElementById('sidebarUserAvatar').innerText = activeChatUsername.charAt(0).toUpperCase();
-            document.getElementById('sidebarUserAvatar').className = `w-8 h-8 rounded-full ${activeAvatarColor} flex items-center justify-center font-bold text-white text-xs shrink-0`;
 
-            const adminBadge=document.getElementById('sidebarRoleBadge'), adminAddBtn=document.getElementById('adminAddChannelBtn'), adminPurgeBtn=document.getElementById('adminPurgeBtn'), adminUsersBtn=document.getElementById('adminUsersBtn');
-            if (isUserAdmin) {
-                if(adminBadge)adminBadge.classList.remove('hidden');
-                if(adminAddBtn)adminAddBtn.classList.remove('hidden');
-                if(adminPurgeBtn)adminPurgeBtn.classList.remove('hidden');
-                if(adminUsersBtn)adminUsersBtn.classList.remove('hidden');
-                renderUserAdminList();
-            } else {
-                if(adminBadge)adminBadge.classList.add('hidden');
-                if(adminAddBtn)adminAddBtn.classList.add('hidden');
-                if(adminPurgeBtn)adminPurgeBtn.classList.add('hidden');
-                if(adminUsersBtn)adminUsersBtn.classList.add('hidden');
+            // Silent ANONYMOUS sign-in gives this visitor a real auth.uid().
+            // Every write is then RLS-evaluated against that identity.
+            try {
+                if (!supabaseUserReady()) {
+                    const captchaToken = joinCaptchaToken;
+                    try {
+                        await signInAnonymous(captchaToken);
+                    } finally {
+                        resetJoinCaptcha();
+                    }
+                }
+                await refreshAuthUser();
+            } catch (err) {
+                showAuthScreen('Could not create a chat session: ' + (err.message || err));
+                return;
+            }
+            if (!currentUserId) {
+                showAuthScreen('Chat session unavailable — try again in a moment.');
+                return;
             }
 
-            updateViewChrome();
-            loadDmLastRead();
-            renderNavigation(); renderDiscordMessages();
+            const created = await ensureMyProfile(name);
+            if (!created) {
+                activeChatUsername = name;
+                const suffix = Math.floor(10 + Math.random() * 90);
+                activeChatUsername = (name + '_' + suffix).slice(0, 32);
+                log('AUTH', 'Joined with fallback display name (profile write failed)', 'warn');
+            }
+
+            log('AUTH', (isAnonymousIdentity ? 'Joined anonymously as: ' : 'Verified member joined as: ') + activeChatUsername, 'info');
+
+            enterChatUi();
+            refreshIdentityUi();
+            renderNavigation();
+            renderDiscordMessages();
             initPresenceChannel();
             trackPresence();
             initDmRealtime();
             updatePresenceUi();
             updateNotificationButton();
             handleChatDeepLink();
-            window.sendDiscordSystemMessage(`${name} entered #${currentChannel}.`);
+            window.sendDiscordSystemMessage(`${activeChatUsername} entered #${currentChannel}.`);
         };
 
         window.logoutChatUser = function() {
@@ -4012,6 +4394,8 @@
             untrackPresence();
             teardownDmRealtime();
             if (typeof window.closeDmModal === 'function') window.closeDmModal();
+            window.closeVerifyEmailModal();
+            window.closeUserAdmin();
             dmConversations = [];
             dmMessages.clear();
             dmSelectedUsers = [];
@@ -4020,17 +4404,18 @@
             pendingMessageJumpId = '';
             activeDmId = null;
             notifiedDmIds.clear();
-            activeChatUsername=''; isUserAdmin=false;
-            localStorage.removeItem('alec_chat_user'); localStorage.removeItem('alec_is_admin');
-            document.getElementById('discordAuthScreen').classList.remove('hidden');
-            document.getElementById('discordChatContainer').classList.add('hidden');
-            document.getElementById('adminPasswordContainer').classList.add('hidden');
-            document.getElementById('chatUsernameInput').value='';
-            document.getElementById('adminPasswordInput').value='';
-            const adminUsersBtn=document.getElementById('adminUsersBtn');
-            if (adminUsersBtn) adminUsersBtn.classList.add('hidden');
-            window.closeUserAdmin();
-            log('AUTH','User logged out','info');
+            adminUiUnlocked = false;
+            authUser = null;
+            currentUserId = '';
+            isAnonymousIdentity = true;
+            isUserAdmin = false;
+            directoryCache.clear();
+            activeChatUsername = '';
+            if (supabaseClient) {
+                supabaseClient.auth.signOut().catch(() => {});
+            }
+            log('AUTH', 'Signed out; reloading', 'info');
+            setTimeout(() => window.location.reload(), 400);
         };
 
         window.adminPromptAddChannel = async function() {
@@ -4218,7 +4603,7 @@
 
         function chatImageRetentionLabel() {
             return (supabaseLive && supabaseClient)
-                ? `${CHAT_IMAGE_RETENTION_DAYS}-day retention`
+                ? 'private upload · signed link, 24 h'
                 : 'hosted temporarily (~3h)';
         }
 
@@ -4560,31 +4945,30 @@
             });
         }
 
-        function chatImageFolder() {
-            const now = new Date();
-            const y = now.getUTCFullYear();
-            const m = String(now.getUTCMonth() + 1).padStart(2, '0');
-            const d = String(now.getUTCDate()).padStart(2, '0');
-            return `chat/${y}-${m}-${d}`;
-        }
-
-        async function uploadChatImageToSupabase(blob, thumbBlob) {
+        // Storage path scheme (bucket is PRIVATE):
+        //   channel images -> <uid>/<random>.<ext>
+        //   DM images      -> dm-<conversation_id>/<uid>/<random>.<ext>
+        // Storage RLS enforces both schemes; the full image URL is a
+        // short-lived signed URL created locally at upload time.
+        async function uploadChatImageToSupabase(blob, thumbBlob, dmConversationId) {
             if (!supabaseClient) throw new Error('Supabase client is not ready');
-            const folder = chatImageFolder();
-            const base = 'chat_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+            if (!currentUserId) throw new Error('Sign in to upload images');
+            const folder = (isUuid(dmConversationId)
+                ? `dm-${dmConversationId}/${currentUserId}`
+                : currentUserId);
+            const base = 'img_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
             const filename = base + '.jpg';
             const path = `${folder}/${filename}`;
-            const { error } = await supabaseClient.storage
+            const { error: uploadError } = await supabaseClient.storage
                 .from(CHAT_IMAGE_BUCKET)
                 .upload(path, blob, {
                     contentType: 'image/jpeg',
-                    cacheControl: '86400',
+                    cacheControl: String(SIGNED_URL_TTL),
                     upsert: false
                 });
-            if (error) throw new Error(error.message);
-            const { data } = supabaseClient.storage.from(CHAT_IMAGE_BUCKET).getPublicUrl(path);
-            const url = data && data.publicUrl;
-            if (!url || !/^https:\/\//i.test(url)) throw new Error('Supabase Storage did not return a public URL');
+            if (uploadError) throw new Error(uploadError.message);
+            const url = await createSignedImageUrl(path);
+            if (!url || !/^https:\/\//i.test(url)) throw new Error('Supabase Storage did not return a signed URL');
 
             let thumbUrl = '';
             let thumbPath = '';
@@ -4595,14 +4979,13 @@
                     .from(CHAT_IMAGE_BUCKET)
                     .upload(thumbFullPath, thumbBlob, {
                         contentType: 'image/jpeg',
-                        cacheControl: '86400',
+                        cacheControl: String(SIGNED_URL_TTL),
                         upsert: false
                     });
                 if (thumbError) {
                     log('IMAGE', 'Thumbnail upload failed; using full image: ' + thumbError.message, 'warn');
                 } else {
-                    const thumbResult = supabaseClient.storage.from(CHAT_IMAGE_BUCKET).getPublicUrl(thumbFullPath);
-                    const candidate = thumbResult && thumbResult.data && thumbResult.data.publicUrl;
+                    const candidate = await createSignedImageUrl(thumbFullPath);
                     if (candidate && /^https:\/\//i.test(candidate)) {
                         thumbUrl = candidate;
                         thumbPath = thumbFullPath;
@@ -4613,74 +4996,32 @@
                 url,
                 path,
                 name: filename,
-                host: 'supabase',
-                expires: Math.floor((Date.now() + CHAT_IMAGE_RETENTION_MS) / 1000),
+                host: 'supabase-signed',
+                expires: Math.floor(Date.now() / 1000) + SIGNED_URL_TTL,
                 thumbUrl,
                 thumbPath
             };
         }
 
-        async function uploadChatImage(blob, thumbBlob) {
+        async function createSignedImageUrl(path) {
+            if (!supabaseClient || !path) return '';
+            const { data, error } = await supabaseClient.storage
+                .from(CHAT_IMAGE_BUCKET)
+                .createSignedUrl(path, SIGNED_URL_TTL);
+            if (error || !data || !data.signedUrl) {
+                if (error) log('IMAGE', 'Signed URL failed: ' + error.message, 'warn');
+                return '';
+            }
+            return data.signedUrl;
+        }
+
+        async function uploadChatImage(blob, thumbBlob, dmConversationId) {
             if (!supabaseClient) throw new Error('Supabase client is not ready');
-            const uploaded = await uploadChatImageToSupabase(blob, thumbBlob);
+            const uploaded = await uploadChatImageToSupabase(blob, thumbBlob, dmConversationId);
             log('IMAGE', `Uploaded to Supabase Storage (${formatBytes(blob.size)})` + (uploaded.thumbUrl ? ' with thumbnail' : ''), 'success');
             return uploaded;
         }
 
-        async function listChatImageFolder(path) {
-            const entries = [];
-            for (let offset = 0; offset < 10000; offset += 1000) {
-                const { data, error } = await supabaseClient.storage
-                    .from(CHAT_IMAGE_BUCKET)
-                    .list(path, { limit: 1000, offset, sortBy: { column: 'name', order: 'asc' } });
-                if (error) throw new Error(error.message);
-                if (!data || data.length === 0) break;
-                entries.push(...data);
-                if (data.length < 1000) break;
-            }
-            return entries;
-        }
-
-        async function cleanupExpiredChatImages(force = false) {
-            if (imageCleanupRunning || !supabaseClient) return;
-            if (!force && !supabaseLive) return;
-            const lastCleanup = Number(localStorage.getItem('alec_image_cleanup_last') || 0);
-            if (!force && Date.now() - lastCleanup < CHAT_IMAGE_CLEANUP_INTERVAL_MS) return;
-            imageCleanupRunning = true;
-            try {
-                const cutoff = Date.now() - CHAT_IMAGE_RETENTION_MS;
-                const root = await listChatImageFolder('chat');
-                const folders = root.filter(entry =>
-                    entry && !entry.id && /^\d{4}-\d{2}-\d{2}$/.test(entry.name || '')
-                );
-                let deleted = 0;
-                for (const folder of folders) {
-                    const folderStart = Date.parse(folder.name + 'T00:00:00Z');
-                    if (Number.isFinite(folderStart) && folderStart > cutoff) continue;
-                    const files = await listChatImageFolder('chat/' + folder.name);
-                    const expired = files.filter(entry =>
-                        entry && entry.id && entry.name && Date.parse(entry.created_at || '') < cutoff
-                    );
-                    for (let i = 0; i < expired.length; i += 100) {
-                        const paths = expired.slice(i, i + 100).map(entry => `chat/${folder.name}/${entry.name}`);
-                        const { error } = await supabaseClient.storage.from(CHAT_IMAGE_BUCKET).remove(paths);
-                        if (error) throw new Error(error.message);
-                        deleted += paths.length;
-                    }
-                }
-                localStorage.setItem('alec_image_cleanup_last', String(Date.now()));
-                if (deleted > 0) {
-                    log('IMAGE', `Deleted ${deleted} image(s) older than ${CHAT_IMAGE_RETENTION_DAYS} days`, 'success');
-                } else if (force) {
-                    log('IMAGE', 'Image cleanup complete; nothing expired', 'info');
-                }
-            } catch (err) {
-                log('IMAGE', 'Image cleanup failed: ' + (err.message || err), 'warn');
-            } finally {
-                imageCleanupRunning = false;
-            }
-        }
-        window.cleanupChatImages = function() { return cleanupExpiredChatImages(true); };
 
         const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -4723,10 +5064,22 @@
             };
             const { data, error } = await supabaseClient
                 .from(DM_MESSAGES_TABLE)
-                .upsert(row, { onConflict: 'id' })
+                .insert(row)
                 .select('*')
                 .single();
-            if (error) throw error;
+            if (error) {
+                if (error.code === '23505') {
+                    const { data: existing, error: lookupError } = await supabaseClient
+                        .from(DM_MESSAGES_TABLE)
+                        .select('*')
+                        .eq('id', row.id)
+                        .eq('conversation_id', String(conversationId))
+                        .eq('sender_id', currentUserId)
+                        .maybeSingle();
+                    if (!lookupError && existing) return normalizeDmMessage(existing) || message;
+                }
+                throw error;
+            }
             return normalizeDmMessage(data || row) || message;
         }
 
@@ -4747,6 +5100,11 @@
                 chatToast('Chat is offline; reconnect to send', true);
                 return false;
             }
+            if (activeDmId && isAnonymousIdentity) {
+                chatToast('Verify an email to send direct messages', true);
+                window.openVerifyEmailModal();
+                return false;
+            }
             sendTypingState(false);
             clearTimeout(typingStopTimer);
             const replySnapshot = pendingReply ? { id: pendingReply.id, user: pendingReply.user, content: pendingReply.content } : null;
@@ -4763,7 +5121,8 @@
                 if (sendBtn) { sendBtn.disabled = true; sendBtn.style.opacity = '0.6'; }
                 setChatImageStatus('Uploading...', false);
                 try {
-                    const uploaded = await uploadChatImage(pendingChatImage.blob, pendingChatImage.thumbBlob);
+                    const uploaded = await uploadChatImage(pendingChatImage.blob, pendingChatImage.thumbBlob,
+                        activeDmId && getActiveDm() ? getActiveDm().id : null);
                     imageUrl = uploaded.url;
                     imageName = pendingChatImage.name || uploaded.name;
                     imagePath = uploaded.path || '';
@@ -4858,12 +5217,7 @@
             persistState();
             renderDiscordMessages();
             try {
-                const { data, error } = await supabaseClient
-                    .from(CHAT_MESSAGES_TABLE)
-                    .upsert(chatMessageToRow(newMsg), { onConflict: 'id' })
-                    .select('*')
-                    .single();
-                if (error) throw error;
+                const data = await insertChatMessageRow(newMsg);
                 const saved = chatMessageFromRow(data);
                 if (saved) upsertChatMessage(saved, { fromRealtime: true });
                 persistState();
@@ -4895,12 +5249,7 @@
                 persistState();
                 renderDiscordMessages();
                 try {
-                    const { data, error } = await supabaseClient
-                        .from(CHAT_MESSAGES_TABLE)
-                        .upsert(chatMessageToRow(message), { onConflict: 'id' })
-                        .select('*')
-                        .single();
-                    if (error) throw error;
+                    const data = await insertChatMessageRow(message);
                     const saved = chatMessageFromRow(data);
                     if (saved) upsertChatMessage(saved, { fromRealtime: true });
                     persistState();
@@ -4946,35 +5295,21 @@
             }
         };
 
+        // System notices ("X entered #channel") are LOCAL echoes only:
+        // chat_messages requires a real sender_id (auth.uid()), so there is
+        // no server identity left to persist them under. They vanish on
+        // refresh, which matches their informational role. No DB write,
+        // no failure handling needed.
         window.sendDiscordSystemMessage = function(text) {
-            if (!supabaseClient || !supabaseLive) return;
             const now = new Date();
             const timeStr = `Today at ${now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
             const systemMsg = {
                 id: newMessageId(), channel: currentChannel, user: 'System',
                 avatarColor: 'bg-indigo-600', badge: 'BOT', time: timeStr, content: text,
-                timestamp: Date.now(), _pending: true, _failed: false
+                timestamp: Date.now(), _pending: false, _failed: false
             };
             upsertChatMessage(systemMsg);
             renderDiscordMessages();
-            supabaseClient
-                .from(CHAT_MESSAGES_TABLE)
-                .upsert(chatMessageToRow(systemMsg), { onConflict: 'id' })
-                .select('*')
-                .single()
-                .then(({ data, error }) => {
-                    if (error) throw error;
-                    const saved = chatMessageFromRow(data);
-                    if (saved) upsertChatMessage(saved, { fromRealtime: true });
-                    persistState();
-                    renderDiscordMessages();
-                })
-                .catch(error => {
-                    removeChatMessage(systemMsg.id);
-                    persistState();
-                    renderDiscordMessages();
-                    log('MSG', 'System message failed: ' + (error.message || error), 'warn');
-                });
         };
 
         window.addEventListener('keydown', (e) => {
@@ -4990,7 +5325,9 @@
                 const gate = document.getElementById('frontGate');
                 const assignment = document.getElementById('frontAssignmentView');
                 const dmModal = document.getElementById('dmModal');
+                const verifyEmailModal = document.getElementById('verifyEmailModal');
                 const userAdminModal = document.getElementById('userAdminModal');
+                if (verifyEmailModal && !verifyEmailModal.classList.contains('hidden')) { window.closeVerifyEmailModal(); return; }
                 if (userAdminModal && !userAdminModal.classList.contains('hidden')) { window.closeUserAdmin(); return; }
                 if (dmModal && !dmModal.classList.contains('hidden')) { window.closeDmModal(); return; }
                 if (passModal && passModal.classList.contains('open')) { window.closeGatePass(); return; }
@@ -5110,38 +5447,17 @@
                 if (icon) icon.innerHTML = faIconMarkup('solid','volume-xmark','text-sm text-red-400');
             }
 
-            if (activeChatUsername.toLowerCase() === 'onering') {
-                activeChatUsername = '';
-                localStorage.removeItem('alec_chat_user');
-            }
+            // Clear stale pre-migration localStorage keys (old email
+            // directory model). Identity now lives in the Supabase session.
+            try {
+                ['alec_chat_email', 'alec_chat_email_pings', 'alec_emailjs_service_id',
+                 'alec_emailjs_template_id', 'alec_emailjs_public_key', 'alec_chat_users',
+                 'alec_chat_email_account', 'alec_is_admin', 'alec_image_cleanup_last'
+                ].forEach(key => localStorage.removeItem(key));
+            } catch (e) {}
 
-            // Auto-restore session if user was already logged in
-            if (activeChatUsername) {
-                document.getElementById('discordAuthScreen').classList.add('hidden');
-                document.getElementById('discordChatContainer').classList.remove('hidden');
-                document.getElementById('sidebarUsername').innerText = activeChatUsername;
-                document.getElementById('sidebarUserAvatar').innerText = activeChatUsername.charAt(0).toUpperCase();
-                document.getElementById('sidebarUserAvatar').className = `w-8 h-8 rounded-full ${activeAvatarColor} flex items-center justify-center font-bold text-white text-xs shrink-0`;
-
-                const adminBadge=document.getElementById('sidebarRoleBadge'), adminAddBtn=document.getElementById('adminAddChannelBtn'), adminPurgeBtn=document.getElementById('adminPurgeBtn');
-                if (isUserAdmin) {
-                    if(adminBadge)adminBadge.classList.remove('hidden');
-                    if(adminAddBtn)adminAddBtn.classList.remove('hidden');
-                    if(adminPurgeBtn)adminPurgeBtn.classList.remove('hidden');
-                }
-                updateViewChrome();
-                loadDmLastRead();
-                renderNavigation();
-                renderDiscordMessages();
-                initPresenceChannel();
-                trackPresence();
-                initDmRealtime();
-                updatePresenceUi();
-                handleChatDeepLink();
-                setTimeout(() => { const inp=document.getElementById('discordInput'); if(inp)inp.focus(); }, 200);
-            }
-
-            renderUserDirectory();
+            // Session restore is identity-driven: applyAuthSession (from
+            // initSupabase) restores the profile and enters the chat UI.
             initRealtimePubSub();
         };
         })();
