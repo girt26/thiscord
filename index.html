@@ -143,7 +143,6 @@
         .dm-list-item:focus-visible { outline: 2px solid rgba(99,102,241,.8); outline-offset: 1px; }
         .dm-avatar { position: relative; width: 1.75rem; height: 1.75rem; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: .72rem; font-weight: 800; color: #fff; background: linear-gradient(135deg,#6366f1,#a855f7); }
         .dm-avatar.group { background: linear-gradient(135deg,#0ea5e9,#6366f1); }
-        .dm-online-dot { position: absolute; right: -.08rem; bottom: -.08rem; width: .55rem; height: .55rem; border-radius: 999px; background: #34d399; border: 2px solid #2b2d31; }
         .dm-unread-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 1.15rem; height: 1.15rem; padding: 0 .3rem; border-radius: 999px; background: #f43f5e; color: #fff; font-size: .62rem; font-weight: 800; line-height: 1; flex-shrink: 0; }
         .dm-list-title { font-size: .78rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .dm-list-snippet { font-size: .66rem; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: .1rem; }
@@ -178,6 +177,8 @@
         .message-retry-btn:hover { color: #fecdd3; }
         .chat-message-pending .message-content { opacity: .7; }
         .chat-message-failed .message-content { opacity: .82; }
+        #adminPurgeBtn { color: #b91c1c; border-color: #b91c1c; background-color: rgba(127, 29, 29, .32); }
+        #adminPurgeBtn:hover { color: #ef4444; border-color: #ef4444; background-color: rgba(185, 28, 28, .48); }
         .dm-typing { color: #a5b4fc; font-size: .64rem; font-weight: 700; }
     </style>
 </head>
@@ -500,7 +501,6 @@
                     <div class="flex items-center gap-2">
                         <span class="text-white font-bold font-heading text-lg">Glec's Secret Lounge</span>
                         <span id="roleHeaderBadge" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                             <span id="onlineCountBadge">Global Live</span>
                         </span>
                     </div>
@@ -514,36 +514,36 @@
             <!-- Header Actions -->
             <div class="flex items-center gap-2">
                 <!-- Message search -->
-                <button id="chatSearchBtn" onclick="window.toggleChatSearch()" class="text-gray-400 hover:text-indigo-300 bg-[#383a40] hover:bg-[#404249] p-2.5 rounded-xl transition-all" title="Search messages" aria-label="Search messages" aria-expanded="false">
+                <button id="chatSearchBtn" onclick="window.toggleChatSearch()" class="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-indigo-300 bg-[#383a40] hover:bg-[#404249] rounded-xl transition-all" title="Search messages" aria-label="Search messages" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-sm"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>
                 </button>
 
                 <!-- Mention notifications -->
-                <button id="chatNotifyBtn" onclick="window.enableChatNotifications()" class="text-gray-400 hover:text-amber-300 bg-[#383a40] hover:bg-[#404249] p-2.5 rounded-xl transition-all" title="Enable mention notifications" aria-label="Enable mention notifications">
+                <button id="chatNotifyBtn" onclick="window.enableChatNotifications()" class="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-amber-300 bg-[#383a40] hover:bg-[#404249] rounded-xl transition-all" title="Enable mention notifications" aria-label="Enable mention notifications">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-sm"><path d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H80.3C106.1 328 120 281.3 120 233.4V200c0-57.4 46.6-104 104-104zm64 352H160c0 35.3 28.7 64 64 64s64-28.7 64-64z"/></svg>
                 </button>
 
-                <!-- Admin Clear Channel Button (Visible only to Admin) -->
-                <button id="adminPurgeBtn" onclick="window.adminClearChannel()" class="hidden text-xs text-red-400 hover:text-red-300 bg-red-950/40 border border-red-800/40 px-2.5 py-1.5 rounded-xl transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-xs mr-1"><path d="M566.6 54.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192-34.7-34.7c-4.2-4.2-10-6.6-16-6.6c-12.5 0-22.6 10.1-22.6 22.6v29.1L364.3 320h29.1c12.5 0 22.6-10.1 22.6-22.6c0-6-2.4-11.8-6.6-16l-34.7-34.7 192-192zM341.1 353.4L222.6 234.9c-42.7-3.7-85.2 11.7-115.8 42.3l-8 8C76.5 307.5 64 337.7 64 369.2c0 6.8 7.1 11.2 13.2 8.2l51.1-25.5c5-2.5 9.5 4.1 5.4 7.9L7.3 473.4C2.7 477.6 0 483.6 0 489.9C0 502.1 9.9 512 22.1 512l173.3 0c38.8 0 75.9-15.4 103.4-42.8c30.6-30.6 45.9-73.1 42.3-115.8z"/></svg>
-                    <span>Clear</span>
-                </button>
-
                 <!-- Diagnostic Terminal Button -->
-                <button onclick="window.toggleLogModal()" class="text-gray-400 hover:text-emerald-400 bg-[#383a40] hover:bg-[#404249] p-2.5 rounded-xl transition-all relative" title="System Diagnostic Logs (F2)">
+                <button onclick="window.toggleLogModal()" class="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-emerald-400 bg-[#383a40] hover:bg-[#404249] rounded-xl transition-all relative" title="System Diagnostic Logs (F2)" aria-label="System diagnostic logs">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-sm"><path d="M9.4 86.6C-3.1 74.1-3.1 53.9 9.4 41.4s32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 9.4 86.6zM256 416H544c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg>
-                    <span id="logErrorDot" class="hidden absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    <span id="logErrorDot" class="hidden absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500"></span>
                 </button>
 
                 <!-- Sound chime toggle -->
-                <button id="soundToggleBtn" onclick="window.toggleChatAudio()" class="text-gray-400 hover:text-white bg-[#383a40] hover:bg-[#404249] p-2.5 rounded-xl transition-all" title="Toggle audio ping">
+                <button id="soundToggleBtn" onclick="window.toggleChatAudio()" class="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-white bg-[#383a40] hover:bg-[#404249] rounded-xl transition-all" title="Toggle audio ping" aria-label="Toggle audio ping">
                     <span id="soundIcon" class="inline-flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-sm"><path d="M533.6 32.5C598.5 85.3 640 165.8 640 256s-41.5 170.8-106.4 223.5c-10.3 8.4-25.4 6.8-33.8-3.5s-6.8-25.4 3.5-33.8C557.5 398.2 592 331.2 592 256s-34.5-142.2-88.7-186.3c-10.3-8.4-11.8-23.5-3.5-33.8s23.5-11.8 33.8-3.5zM473.1 107c43.2 35.2 70.9 88.9 70.9 149s-27.7 113.8-70.9 149c-10.3 8.4-25.4 6.8-33.8-3.5s-6.8-25.4 3.5-33.8C475.3 341.3 496 301.1 496 256s-20.7-85.3-53.2-111.8c-10.3-8.4-11.8-23.5-3.5-33.8s23.5-11.8 33.8-3.5zm-60.5 74.5C434.1 199.1 448 225.9 448 256s-13.9 56.9-35.4 74.5c-10.3 8.4-25.4 6.8-33.8-3.5s-6.8-25.4 3.5-33.8C393.1 284.4 400 271 400 256s-6.9-28.4-17.7-37.3c-10.3-8.4-11.8-23.5-3.5-33.8s23.5-11.8 33.8-3.5zM301.1 34.8C312.6 40 320 51.4 320 64V448c0 12.6-7.4 24-18.9 29.2s-25 3.1-34.4-5.3L131.8 352H64c-35.3 0-64-28.7-64-64V224c0-35.3 28.7-64 64-64h67.8L266.7 40.1c9.4-8.4 22.9-10.4 34.4-5.3z"/></svg></span>
                 </button>
 
                 <!-- Emergency camouflage button -->
-                <button id="camouflageBtn" onclick="window.engageCamouflage()" class="text-gray-400 hover:text-amber-300 bg-[#383a40] hover:bg-[#404249] p-2.5 rounded-xl transition-all" title="Emergency camouflage (Esc)">
+                <button id="camouflageBtn" onclick="window.engageCamouflage()" class="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-amber-300 bg-[#383a40] hover:bg-[#404249] rounded-xl transition-all" title="Hide (Esc)" aria-label="Hide">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-sm"><path d="M224 16c-6.7 0-10.8-2.8-15.5-6.1C201.9 5.4 194 0 176 0c-30.5 0-52 43.7-66 89.4C62.7 98.1 32 112.2 32 128c0 14.3 25 27.1 64.6 35.9c-.4 4-.6 8-.6 12.1c0 17 3.3 33.2 9.3 48H45.4C38 224 32 230 32 237.4c0 1.7 .3 3.4 1 5l38.8 96.9C28.2 371.8 0 423.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7c0-58.5-28.2-110.4-71.7-143L415 242.4c.6-1.6 1-3.3 1-5c0-7.4-6-13.4-13.4-13.4H342.7c6-14.8 9.3-31 9.3-48c0-4.1-.2-8.1-.6-12.1C391 155.1 416 142.3 416 128c0-15.8-30.7-29.9-78-38.6C324 43.7 302.5 0 272 0c-18 0-25.9 5.4-32.5 9.9c-4.8 3.3-8.8 6.1-15.5 6.1zm56 208H267.6c-16.5 0-31.1-10.6-36.3-26.2c-2.3-7-12.2-7-14.5 0c-5.2 15.6-19.9 26.2-36.3 26.2H168c-22.1 0-40-17.9-40-40V169.6c28.2 4.1 61 6.4 96 6.4s67.8-2.3 96-6.4V184c0 22.1-17.9 40-40 40zm-88 96l16 32L176 480 128 288l64 32zm128-32L272 480 240 352l16-32 64-32z"/></svg>
                 </button>
+
+                <!-- Admin Clear Channel Button (Visible only to Admin) -->
+                <button id="adminPurgeBtn" onclick="window.adminClearChannel()" class="hidden w-10 h-10 shrink-0 flex items-center justify-center text-red-300 hover:text-red-100 bg-red-950/60 hover:bg-red-800/80 border border-red-700/50 hover:border-red-500/70 rounded-xl transition-all" title="Clear channel messages" aria-label="Clear channel messages">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-sm"><path d="M566.6 54.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192-34.7-34.7c-4.2-4.2-10-6.6-16-6.6c-12.5 0-22.6 10.1-22.6 22.6v29.1L364.3 320h29.1c12.5 0 22.6-10.1 22.6-22.6c0-6-2.4-11.8-6.6-16l-34.7-34.7 192-192zM341.1 353.4L222.6 234.9c-42.7-3.7-85.2 11.7-115.8 42.3l-8 8C76.5 307.5 64 337.7 64 369.2c0 6.8 7.1 11.2 13.2 8.2l51.1-25.5c5-2.5 9.5 4.1 5.4 7.9L7.3 473.4C2.7 477.6 0 483.6 0 489.9C0 502.1 9.9 512 22.1 512l173.3 0c38.8 0 75.9-15.4 103.4-42.8c30.6-30.6 45.9-73.1 42.3-115.8z"/></svg>
+                </button>
+
             </div>
         </div>
 
@@ -556,6 +556,17 @@
                 <h3 class="text-2xl font-bold font-heading text-white">Enter Stealth Webchat</h3>
                 <p class="text-gray-400 text-sm max-w-sm mt-1">Join instantly — no email needed. Public channels are anonymous; direct messages ask for a verified email, which you can add later.</p>
             </div>
+
+            <button type="button" onclick="window.openEmailLoginModal()" class="w-full max-w-sm rounded-xl border-2 border-indigo-400 bg-indigo-600 hover:bg-indigo-500 hover:border-indigo-300 px-4 py-3 text-left text-white shadow-lg shadow-indigo-950/40 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 focus:ring-offset-[#313338]">
+                <span class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/15 text-xs font-bold" aria-hidden="true">ID</span>
+                    <span class="flex flex-col">
+                        <span class="font-bold">Sign in to an existing account</span>
+                        <span class="text-xs text-indigo-100">Sign in with your email and password</span>
+                    </span>
+                    <span class="ml-auto text-xl" aria-hidden="true">›</span>
+                </span>
+            </button>
 
             <form onsubmit="window.joinSecretLounge(event)" class="w-full max-w-sm space-y-4 pt-1">
                 <div class="text-left space-y-1.5">
@@ -618,7 +629,7 @@
                             <div class="dm-empty">No direct messages yet.</div>
                         </div>
                         <div id="dmSetupNotice" class="dm-setup-notice hidden">
-                            Chat tables are not set up yet. Apply the SQL in <span class="font-mono">supabase/migrations/</span> in the Supabase SQL editor (see README).
+                            Chat tables are unavailable. Contact the maintainer (see README).
                         </div>
                     </div>
                 </div>
@@ -633,10 +644,12 @@
                                 <span id="sidebarRoleBadge" class="hidden text-[9px] bg-teal-400 text-black font-extrabold px-1.5 py-0.2 rounded uppercase">ADMIN</span>
                             </div>
                             <button onclick="window.openVerifyEmailModal()" id="sidebarVerifyBtn" class="hidden text-[10px] text-amber-400 hover:text-amber-300 font-bold leading-tight" title="Unlock direct messages by verifying an email">
-                                ✉ Verify email
+                                Verify email
+                            </button>
+                            <button onclick="window.openPasswordSetupModal()" id="sidebarPasswordBtn" class="hidden mt-1 text-[10px] text-indigo-300 hover:text-indigo-200 font-bold leading-tight" title="Set or change your password">
+                                Set / change password
                             </button>
                             <div id="sidebarOnlineLine" class="text-[10px] text-emerald-400 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                 <span>Online</span>
                             </div>
                         </div>
@@ -680,20 +693,6 @@
 
                 <!-- Typing indicator -->
                 <div id="chatTypingIndicator" class="px-4 sm:px-6" aria-live="polite"></div>
-
-                <!-- Emoji Bar -->
-                <div class="px-4 py-1.5 bg-[#2b2d31]/50 border-t border-[#383a40]/40 flex items-center gap-2 overflow-x-auto text-sm">
-                    <span class="text-[10px] uppercase font-bold text-gray-500 mr-1">Quick:</span>
-                    <button onclick="window.insertEmoji('🔥')" class="hover:scale-125 transition-transform">🔥</button>
-                    <button onclick="window.insertEmoji('🚀')" class="hover:scale-125 transition-transform">🚀</button>
-                    <button onclick="window.insertEmoji('👑')" class="hover:scale-125 transition-transform">👑</button>
-                    <button onclick="window.insertEmoji('🤫')" class="hover:scale-125 transition-transform">🤫</button>
-                    <button onclick="window.insertEmoji('💯')" class="hover:scale-125 transition-transform">💯</button>
-                    <button onclick="window.insertEmoji('💀')" class="hover:scale-125 transition-transform">💀</button>
-                    <button onclick="window.insertEmoji('👀')" class="hover:scale-125 transition-transform">👀</button>
-                    <button onclick="window.insertEmoji('❤️')" class="hover:scale-125 transition-transform">❤️</button>
-                    <button onclick="window.insertEmoji('✨')" class="hover:scale-125 transition-transform">✨</button>
-                </div>
 
                 <!-- Message Input Bar -->
                 <div class="p-3 sm:p-4 bg-[#313338]">
@@ -827,8 +826,73 @@
                             class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 text-sm">
                     </div>
                     <p id="verifyEmailHint" class="text-[10px] text-gray-500 leading-relaxed hidden"></p>
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold px-3 py-2.5 rounded-lg transition-colors">Send verification link</button>
-                    <p class="text-[10px] text-gray-500 leading-relaxed">You keep this chat account and display name. Until you click the link we send, only public channels are available to you.</p>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold px-3 py-2.5 rounded-lg transition-colors">Email me a verification code</button>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">You keep this chat account and display name. Enter the code we send to unlock direct messages.</p>
+                </form>
+                <form id="verifyEmailOtpForm" onsubmit="window.submitVerifyEmailOtp(event)" class="hidden space-y-3">
+                    <div class="text-left space-y-1.5">
+                        <label for="verifyEmailOtpInput" class="block text-[11px] font-bold text-gray-400">Six-digit verification code</label>
+                        <input type="text" id="verifyEmailOtpInput" required inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="123456"
+                            class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-3 text-center text-white text-xl tracking-[0.35em] placeholder-gray-600 focus:outline-none focus:border-amber-500">
+                    </div>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">Enter the code sent to <span id="verifyEmailOtpAddress" class="text-gray-300"></span>.</p>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold px-3 py-2.5 rounded-lg transition-colors">Verify email and unlock DMs</button>
+                    <button type="button" onclick="window.useDifferentVerifyEmail()" class="w-full text-gray-300 hover:text-white text-xs py-2">Use a different email</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="emailLoginModal" class="dm-modal hidden" role="dialog" aria-modal="true" aria-labelledby="emailLoginTitle" onclick="if(event.target===this)window.closeEmailLoginModal()">
+        <div class="dm-modal-card" style="max-width:26rem;">
+            <div class="dm-modal-header">
+                <div class="min-w-0">
+                    <h2 id="emailLoginTitle" class="text-white font-heading font-bold text-lg">Sign in with email</h2>
+                    <p class="text-gray-400 text-xs mt-0.5">Sign in with your email and password.</p>
+                </div>
+                <button type="button" onclick="window.closeEmailLoginModal()" class="chat-image-remove" title="Close email sign in" aria-label="Close email sign in">×</button>
+            </div>
+            <div class="p-4 space-y-3">
+                <form id="emailPasswordLoginForm" onsubmit="window.submitEmailPasswordLogin(event)" class="space-y-3">
+                    <div class="text-left space-y-1.5">
+                        <label for="emailPasswordLoginEmail" class="block text-[11px] font-bold text-gray-400">Email address</label>
+                        <input type="email" id="emailPasswordLoginEmail" required autocomplete="email" placeholder="you@example.com"
+                            class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
+                    </div>
+                    <div class="text-left space-y-1.5">
+                        <label for="emailPasswordLoginPassword" class="block text-[11px] font-bold text-gray-400">Password</label>
+                        <input type="password" id="emailPasswordLoginPassword" required autocomplete="current-password" placeholder="Your password"
+                            class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold px-3 py-3 rounded-lg transition-colors">Sign in</button>
+                <p id="emailLoginHint" class="text-sm text-emerald-300 leading-relaxed hidden" role="status" aria-live="polite"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordSetupModal" class="dm-modal hidden" role="dialog" aria-modal="true" aria-labelledby="passwordSetupTitle" onclick="if(event.target===this)window.closePasswordSetupModal()">
+        <div class="dm-modal-card" style="max-width:26rem;">
+            <div class="dm-modal-header">
+                <div class="min-w-0">
+                    <h2 id="passwordSetupTitle" class="text-white font-heading font-bold text-lg">Set a password</h2>
+                    <p class="text-gray-400 text-xs mt-0.5">Sign back in without waiting for an email.</p>
+                </div>
+                <button type="button" onclick="window.closePasswordSetupModal()" class="chat-image-remove" title="Close password setup" aria-label="Close password setup">×</button>
+            </div>
+            <div class="p-4 space-y-3">
+                <form id="passwordSetupForm" onsubmit="window.submitPasswordSetup(event)" class="space-y-3">
+                    <div class="text-left space-y-1.5">
+                        <label for="passwordSetupInput" class="block text-[11px] font-bold text-gray-400">New password</label>
+                        <input type="password" id="passwordSetupInput" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters"
+                            class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
+                    </div>
+                    <div class="text-left space-y-1.5">
+                        <label for="passwordSetupConfirm" class="block text-[11px] font-bold text-gray-400">Confirm password</label>
+                        <input type="password" id="passwordSetupConfirm" required minlength="8" autocomplete="new-password" placeholder="Enter it again"
+                            class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
+                    </div>
+                    <p id="passwordSetupHint" class="text-sm text-emerald-300 leading-relaxed hidden" role="status" aria-live="polite"></p>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold px-3 py-3 rounded-lg transition-colors">Save password</button>
                 </form>
             </div>
         </div>
@@ -841,12 +905,9 @@
         <div class="bg-[#0b0d14] text-gray-200 border border-emerald-500/40 rounded-2xl max-w-4xl w-full h-[82vh] flex flex-col overflow-hidden font-mono text-xs">
             <div class="bg-[#121522] border-b border-emerald-500/30 px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
-                    <span class="w-3 h-3 rounded-full bg-teal-500 inline-block"></span>
-                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
                     <span class="ml-2 font-bold text-emerald-400 flex items-center gap-1.5">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg text-xs"><path d="M9.4 86.6C-3.1 74.1-3.1 53.9 9.4 41.4s32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L178.7 256 9.4 86.6zM256 416H544c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg>
-                        <span>GLEC-OS // DIAGNOSTIC LOG AUDITOR</span>
+                        <span>DIAGNOSTIC LOG AUDITOR</span>
                     </span>
                     <span id="logConnectionPill" class="text-[10px] bg-teal-950/70 border border-teal-500/30 text-teal-300 px-2 py-0.5 rounded-full ml-2">LIVE: CONNECTING</span>
                 </div>
@@ -908,7 +969,7 @@
     <!-- APPLICATION JAVASCRIPT LOGIC                             -->
     <!-- ======================================================== -->
     <!-- Supabase JS client (primary realtime transport) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script>
         (function() {
         // ------------------------------------------------------------
@@ -916,8 +977,8 @@
         // Fill these in, or configure at runtime from the browser console:
         //   configureSupabase('https://YOUR-PROJECT.supabase.co', 'eyJ...')
         // Only the public anon key belongs here. Never embed service_role.
-        // Backend schema must exist: apply supabase/migrations/*.sql first
-        // (README). Identity: silent ANONYMOUS auth for public chat; email
+        // Backend schema must already be provisioned (README). Identity:
+        // silent ANONYMOUS auth for public chat; email
         // verification (OTP/link) required for direct messages; admins are
         // accounts with app_metadata.role='admin'.
         // ------------------------------------------------------------
@@ -1170,12 +1231,14 @@
                 if (usersBtn) usersBtn.classList.add('hidden');
             }
             const verifyBtn = document.getElementById('sidebarVerifyBtn');
+            const passwordBtn = document.getElementById('sidebarPasswordBtn');
             const onlineLine = document.getElementById('sidebarOnlineLine');
             if (verifyBtn && onlineLine) {
                 const showVerify = !!(authUser && isAnonymousIdentity);
                 verifyBtn.classList.toggle('hidden', !showVerify);
                 onlineLine.classList.toggle('hidden', showVerify);
             }
+            if (passwordBtn) passwordBtn.classList.toggle('hidden', !(authUser && !isAnonymousIdentity && authUser.email));
             const banner = document.getElementById('dmVerifyBanner');
             if (banner) banner.classList.toggle('hidden', !isAnonymousIdentity);
             // Re-evaluate admin-sensitive chrome that depends on identity.
@@ -1199,17 +1262,18 @@
 
         // ------------------------------------------------------------
         // EMAIL VERIFICATION (unlocks DMs on the anonymous session)
-        // updateUser({ email }) sends a confirmation link; clicking it
-        // verifies the SAME account (auth.uid() stays), so chat identity
-        // carries over and direct messages become usable.
+        // updateUser({ email }) sends an OTP; verifyOtp upgrades this same
+        // account (auth.uid() stays), so identity and chat history carry over.
         // ------------------------------------------------------------
         window.openVerifyEmailModal = function() {
             if (!authUser) { chatToast('Join the chat first', true); return; }
             if (!isAnonymousIdentity) { chatToast('Your email is already verified'); return; }
             const form = document.getElementById('verifyEmailForm');
+            const otpForm = document.getElementById('verifyEmailOtpForm');
             const hint = document.getElementById('verifyEmailHint');
             const input = document.getElementById('verifyEmailInput');
             if (form) form.classList.remove('hidden');
+            if (otpForm) otpForm.classList.add('hidden');
             if (hint) hint.classList.add('hidden');
             const modal = document.getElementById('verifyEmailModal');
             if (modal) modal.classList.remove('hidden');
@@ -1226,22 +1290,180 @@
             if (!supabaseUserReady()) { chatToast('Not connected — try again shortly', true); return; }
             const input = document.getElementById('verifyEmailInput');
             const hint = document.getElementById('verifyEmailHint');
+            const form = document.getElementById('verifyEmailForm');
+            const otpForm = document.getElementById('verifyEmailOtpForm');
             const email = String(input && input.value || '').trim();
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 if (hint) { hint.textContent = 'Enter a valid email address.'; hint.classList.remove('hidden'); }
                 return;
             }
-            if (hint) { hint.textContent = 'Sending…'; hint.classList.remove('hidden'); }
+            const button = document.querySelector('#verifyEmailForm button[type="submit"]');
+            if (button) { button.disabled = true; button.textContent = 'Sending…'; }
+            if (hint) { hint.textContent = 'Sending your verification code…'; hint.classList.remove('hidden'); }
             try {
                 const { error } = await supabaseClient.auth.updateUser({ email });
                 if (error) throw error;
-                if (hint) hint.textContent = 'Check your inbox and click the link. Come back here after verifying — DMs unlock automatically.';
-                input.value = '';
-                log('AUTH', 'Verification email sent (account upgrade link)', 'success');
-                chatToast('Verification link sent');
+                if (input) input.readOnly = true;
+                const address = document.getElementById('verifyEmailOtpAddress');
+                if (address) address.textContent = email;
+                if (form) form.classList.add('hidden');
+                if (otpForm) otpForm.classList.remove('hidden');
+                if (hint) { hint.textContent = 'Check your inbox for a six-digit code.'; hint.classList.remove('hidden'); }
+                const tokenInput = document.getElementById('verifyEmailOtpInput');
+                if (tokenInput) setTimeout(() => tokenInput.focus(), 50);
+                log('AUTH', 'Email verification code sent', 'success');
+                chatToast('Verification code sent');
             } catch (err) {
                 if (hint) hint.textContent = err.message || 'Could not send the verification email.';
                 log('AUTH', 'Email verification failed: ' + (err.message || err), 'warn');
+            } finally {
+                if (button) { button.disabled = false; button.textContent = 'Email me a verification code'; }
+            }
+        };
+
+        window.submitVerifyEmailOtp = async function(e) {
+            if (e) e.preventDefault();
+            const email = String(document.getElementById('verifyEmailInput')?.value || '').trim();
+            const tokenInput = document.getElementById('verifyEmailOtpInput');
+            const token = String(tokenInput?.value || '').trim();
+            const hint = document.getElementById('verifyEmailHint');
+            const button = document.querySelector('#verifyEmailOtpForm button[type="submit"]');
+            if (!supabaseClient || !email || !/^[0-9]{6}$/.test(token)) {
+                if (hint) { hint.textContent = 'Enter the six-digit code from your email.'; hint.classList.remove('hidden'); }
+                return;
+            }
+            if (button) { button.disabled = true; button.textContent = 'Verifying…'; }
+            try {
+                const { error } = await supabaseClient.auth.verifyOtp({ email, token, type: 'email_change' });
+                if (error) throw error;
+                window.closeVerifyEmailModal();
+                chatToast('Email verified — direct messages unlocked');
+                log('AUTH', 'Email verified with one-time code', 'success');
+            } catch (err) {
+                if (hint) { hint.textContent = 'That code is invalid or expired. Check the Change Email Address template uses {{ .Token }}, then request a new code.'; hint.classList.remove('hidden'); }
+                if (tokenInput) { tokenInput.value = ''; tokenInput.focus(); }
+                log('AUTH', 'Email verification code failed: ' + (err.message || err), 'warn');
+            } finally {
+                if (button) { button.disabled = false; button.textContent = 'Verify email and unlock DMs'; }
+            }
+        };
+
+        window.useDifferentVerifyEmail = function() {
+            const form = document.getElementById('verifyEmailForm');
+            const otpForm = document.getElementById('verifyEmailOtpForm');
+            const emailInput = document.getElementById('verifyEmailInput');
+            const tokenInput = document.getElementById('verifyEmailOtpInput');
+            const hint = document.getElementById('verifyEmailHint');
+            if (form) form.classList.remove('hidden');
+            if (otpForm) otpForm.classList.add('hidden');
+            if (emailInput) { emailInput.readOnly = false; emailInput.focus(); }
+            if (tokenInput) tokenInput.value = '';
+            if (hint) { hint.textContent = ''; hint.classList.add('hidden'); }
+        };
+
+        window.openEmailLoginModal = function() {
+            const hint = document.getElementById('emailLoginHint');
+            const modal = document.getElementById('emailLoginModal');
+            const input = document.getElementById('emailPasswordLoginEmail');
+            if (hint) { hint.textContent = ''; hint.classList.add('hidden'); hint.classList.remove('text-red-300'); hint.classList.add('text-emerald-300'); }
+            if (modal) modal.classList.remove('hidden');
+            if (input) setTimeout(() => input.focus(), 50);
+        };
+
+        window.closeEmailLoginModal = function() {
+            const modal = document.getElementById('emailLoginModal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.submitEmailPasswordLogin = async function(e) {
+            if (e) e.preventDefault();
+            const email = String(document.getElementById('emailPasswordLoginEmail')?.value || '').trim();
+            const passwordInput = document.getElementById('emailPasswordLoginPassword');
+            const password = String(passwordInput?.value || '');
+            const hint = document.getElementById('emailLoginHint');
+            const button = document.querySelector('#emailPasswordLoginForm button[type="submit"]');
+            const showHint = (message, isError) => {
+                if (!hint) return;
+                hint.textContent = message;
+                hint.classList.remove('hidden', 'text-red-300', 'text-emerald-300');
+                hint.classList.add(isError ? 'text-red-300' : 'text-emerald-300');
+            };
+            if (!supabaseClient) { showHint('Chat service is unavailable. Try again later.', true); return; }
+            if (!email || !password) { showHint('Enter your email and password.', true); return; }
+            if (button) { button.disabled = true; button.textContent = 'Signing in…'; }
+            showHint('Signing in…', false);
+            try {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                if (passwordInput) passwordInput.value = '';
+                window.closeEmailLoginModal();
+                chatToast('Signed in — restoring your profile');
+                log('AUTH', 'Email and password sign-in succeeded', 'success');
+            } catch (err) {
+                showHint('Email or password is incorrect. Check your details and try again.', true);
+                log('AUTH', 'Email and password sign-in failed: ' + (err.message || err), 'warn');
+            } finally {
+                if (button) { button.disabled = false; button.textContent = 'Sign in'; }
+            }
+        };
+
+        window.openPasswordSetupModal = function() {
+            if (!authUser || isAnonymousIdentity || !authUser.email) {
+                chatToast('Verify your email before setting a password', true);
+                return;
+            }
+            const modal = document.getElementById('passwordSetupModal');
+            const form = document.getElementById('passwordSetupForm');
+            const first = document.getElementById('passwordSetupInput');
+            const confirm = document.getElementById('passwordSetupConfirm');
+            const hint = document.getElementById('passwordSetupHint');
+            if (form) form.reset();
+            if (hint) { hint.textContent = ''; hint.classList.add('hidden'); hint.classList.remove('text-red-300'); hint.classList.add('text-emerald-300'); }
+            if (modal) modal.classList.remove('hidden');
+            if (first) setTimeout(() => first.focus(), 50);
+        };
+
+        window.closePasswordSetupModal = function() {
+            const modal = document.getElementById('passwordSetupModal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.submitPasswordSetup = async function(e) {
+            if (e) e.preventDefault();
+            const passwordInput = document.getElementById('passwordSetupInput');
+            const confirmInput = document.getElementById('passwordSetupConfirm');
+            const hint = document.getElementById('passwordSetupHint');
+            const button = document.querySelector('#passwordSetupForm button[type="submit"]');
+            const showHint = (message, isError) => {
+                if (!hint) return;
+                hint.textContent = message;
+                hint.classList.remove('hidden', 'text-red-300', 'text-emerald-300');
+                hint.classList.add(isError ? 'text-red-300' : 'text-emerald-300');
+            };
+            if (!authUser || isAnonymousIdentity || !authUser.email) {
+                showHint('Verify your email before setting a password.', true);
+                return;
+            }
+            const password = String(passwordInput?.value || '');
+            const confirmation = String(confirmInput?.value || '');
+            if (password.length < 8) { showHint('Use at least 8 characters.', true); return; }
+            if (password !== confirmation) { showHint('The passwords do not match.', true); return; }
+            if (!supabaseClient) { showHint('Chat service is unavailable. Try again later.', true); return; }
+            if (button) { button.disabled = true; button.textContent = 'Saving…'; }
+            showHint('Saving your password…', false);
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ password });
+                if (error) throw error;
+                if (passwordInput) passwordInput.value = '';
+                if (confirmInput) confirmInput.value = '';
+                window.closePasswordSetupModal();
+                chatToast('Password saved. Use it for future sign-ins.');
+                log('AUTH', 'Password added to verified account', 'success');
+            } catch (err) {
+                showHint(err.message || 'Could not save the password. Please try again.', true);
+                log('AUTH', 'Password setup failed: ' + (err.message || err), 'warn');
+            } finally {
+                if (button) { button.disabled = false; button.textContent = 'Save password'; }
             }
         };
 
@@ -1828,7 +2050,7 @@
                 const missingTables = isMissingDmTable(e) ||
                     /Could not find the table|relation .* does not exist/i.test(String(e.message || e));
                 if (missingTables) {
-                    log('SUPABASE', 'Backend tables missing. Apply supabase/migrations/*.sql (see README).', 'error');
+                    log('SUPABASE', 'Backend tables unavailable; contact the maintainer (see README).', 'error');
                 } else {
                     log('SUPABASE', `Chat load failed: ${e.message || e}`, 'error');
                 }
@@ -2182,6 +2404,10 @@
             const message = String(error && error.message || error || '');
             return code === '42P01' || code === 'PGRST205' ||
                 /does not exist|Could not find the table|relation .*dm_(conversations|messages)/i.test(message);
+        }
+
+        function isMessageRateLimitError(error) {
+            return /message rate limit/i.test(String(error && error.message || error || ''));
         }
 
         function maybeNotifyDm(message, conv) {
@@ -2599,11 +2825,40 @@
                 const item = document.createElement('div');
                 item.className = `flex items-center justify-between px-3 py-2 rounded-lg font-medium text-sm transition-colors cursor-pointer ${isActive ? 'text-white bg-[#35373c]' : 'text-gray-400 hover:text-white hover:bg-[#35373c]/50'}`;
                 item.onclick = (e) => { if (!e.target.closest('.delete-ch-btn')) window.switchChannel(ch); };
-                let delBtnHtml = '';
+                const label = document.createElement('div');
+                label.className = 'flex items-center gap-2.5 truncate';
+                const hash = document.createElement('span');
+                hash.className = `${isActive ? 'text-indigo-400' : 'text-gray-500'} font-bold`;
+                hash.textContent = '#';
+                const name = document.createElement('span');
+                name.className = 'truncate';
+                name.textContent = ch;
+                label.append(hash, name);
+                item.appendChild(label);
                 if (isUserAdmin && ch !== 'secret-lounge') {
-                    delBtnHtml = `<button onclick="event.stopPropagation(); window.adminDeleteChannel('${ch}')" class="delete-ch-btn text-gray-500 hover:text-red-400 text-xs p-1 rounded transition-colors"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg"><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg></button>`;
+                    const deleteButton = document.createElement('button');
+                    deleteButton.type = 'button';
+                    deleteButton.className = 'delete-ch-btn text-gray-500 hover:text-red-400 text-xs p-1 rounded transition-colors';
+                    deleteButton.title = `Delete #${ch}`;
+                    deleteButton.setAttribute('aria-label', `Delete #${ch}`);
+                    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    icon.setAttribute('viewBox', '0 0 384 512');
+                    icon.setAttribute('width', '1em');
+                    icon.setAttribute('height', '1em');
+                    icon.setAttribute('fill', 'currentColor');
+                    icon.setAttribute('aria-hidden', 'true');
+                    icon.setAttribute('focusable', 'false');
+                    icon.setAttribute('class', 'fa-svg');
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', 'M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3L192 210.7 86.6 105.4c-12.5-12.5-32.8 0-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-32.8 0-45.3 0s-12.5 32.8 0 45.3L192 301.3 297.4 406.6c12.5 12.5 32.8 0 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z');
+                    icon.appendChild(path);
+                    deleteButton.appendChild(icon);
+                    deleteButton.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        window.adminDeleteChannel(ch);
+                    });
+                    item.appendChild(deleteButton);
                 }
-                item.innerHTML = `<div class="flex items-center gap-2.5 truncate"><span class="${isActive ? 'text-indigo-400' : 'text-gray-500'} font-bold">#</span><span class="truncate">${escapeHtml(ch)}</span></div>${delBtnHtml}`;
                 container.appendChild(item);
             });
         }
@@ -2626,10 +2881,11 @@
             const snippet = dmMessageSnippet(conv);
             item.title = conv.kind === 'group' ? `Group DM: ${title}` : `Direct message with ${title}`;
             item.innerHTML = `
-                <span class="dm-avatar ${conv.kind === 'group' ? 'group' : ''}">${escapeHtml(initial)}${online ? '<span class="dm-online-dot"></span>' : ''}</span>
+                <span class="dm-avatar ${conv.kind === 'group' ? 'group' : ''}">${escapeHtml(initial)}</span>
                 <span class="min-w-0 flex-1">
                     <span class="flex items-center gap-2">
-                        <span class="dm-list-title">${conv.kind === 'group' ? '👥 ' : ''}${escapeHtml(title)}</span>
+                        ${conv.kind === 'group' ? '<span class="text-[9px] uppercase tracking-wide text-gray-500">Group</span>' : ''}
+                        <span class="dm-list-title">${escapeHtml(title)}</span>
                         ${unread > 0 ? `<span class="dm-unread-badge">${unread > 99 ? '99+' : unread}</span>` : ''}
                     </span>
                     <span class="dm-list-snippet">${escapeHtml(compact ? (conv.kind === 'group' ? snippet : 'Open conversation') : snippet)}</span>
@@ -2676,7 +2932,7 @@
                 return;
             }
             if (dmSetupMissing) {
-                container.innerHTML = '<div class="dm-empty">Backend tables missing. Apply supabase/migrations/*.sql (see README).</div>';
+                container.innerHTML = '<div class="dm-empty">Backend tables unavailable; contact the maintainer (see README).</div>';
                 return;
             }
             const conversations = dmConversations.filter(isDmParticipant)
@@ -2823,7 +3079,7 @@
                 row.type = 'button';
                 row.className = 'dm-user-row';
                 row.innerHTML = `
-                    <span class="dm-avatar ${person.avatarColor ? safeAvatarColor(person.avatarColor) + ' text-white' : ''}">${escapeHtml(person.username.charAt(0).toUpperCase())}${person.online ? '<span class="dm-online-dot"></span>' : ''}</span>
+                    <span class="dm-avatar ${person.avatarColor ? safeAvatarColor(person.avatarColor) + ' text-white' : ''}">${escapeHtml(person.username.charAt(0).toUpperCase())}</span>
                     <span class="min-w-0 flex-1 truncate">${escapeHtml(person.username)}</span>
                     <span class="dm-user-status">${person.online ? 'online' : 'offline'}</span>`;
                 row.onclick = () => window.toggleDmCandidate(person.id, person.username);
@@ -2850,7 +3106,7 @@
             if (createBtn) createBtn.disabled = dmSelectedUsers.length === 0;
             if (hint) {
                 if (isAnonymousIdentity) hint.textContent = 'Verify an email (identity menu) to unlock direct messages.';
-                else if (dmSetupMissing) hint.textContent = 'Backend tables missing. Apply supabase/migrations/*.sql (see README).';
+                else if (dmSetupMissing) hint.textContent = 'Backend tables unavailable; contact the maintainer (see README).';
                 else if (dmSelectedUsers.length === 0) hint.textContent = 'Pick one person for a 1:1 chat, or several people for a group DM.';
                 else if (dmSelectedUsers.length === 1) hint.textContent = `Start a 1:1 conversation with ${dmSelectedUsers[0].username}.`;
                 else hint.textContent = `Start a group conversation with ${dmSelectedUsers.length} people.`;
@@ -2964,8 +3220,8 @@
                 } else if ((error.message || '').includes('verify your email')) {
                     chatToast('Verify an email to use direct messages', true);
                     window.openVerifyEmailModal();
-                } else {
-                    chatToast('Could not start conversation: ' + (error.message || 'network error'), true);
+                    } else {
+                        chatToast('Could not start conversation: ' + (error.message || 'network error'), true);
                     log('DM', 'Conversation create failed: ' + (error.message || error), 'error');
                 }
             } finally {
@@ -3114,7 +3370,7 @@
             } catch (error) {
                 if (isMissingDmTable(error)) {
                     dmSetupMissing = true;
-                    log('DM', 'DM tables missing; apply supabase/migrations/*.sql', 'warn');
+                    log('DM', 'DM tables unavailable; contact the maintainer', 'warn');
                     renderNavigation();
                 } else {
                     log('DM', 'Load failed: ' + (error.message || error), 'warn');
@@ -3340,7 +3596,7 @@
             if (filtered.length === 0) {
                 if (query) {
                     const where = conversation ? `@${escapeHtml(dmConversationTitle(conversation))}` : `#${escapeHtml(currentChannel)}`;
-                    feed.innerHTML = `<div class="text-center py-12 text-gray-500 space-y-2"><div class="text-3xl opacity-30">⌕</div><p class="text-sm">No messages match <strong class="text-gray-300">"${escapeHtml(chatSearchQuery)}"</strong> in ${where}.</p><p class="text-xs">Try a different search or clear the filter.</p></div>`;
+                    feed.innerHTML = `<div class="text-center py-12 text-gray-500 space-y-2"><p class="text-sm">No messages match <strong class="text-gray-300">"${escapeHtml(chatSearchQuery)}"</strong> in ${where}.</p><p class="text-xs">Try a different search or clear the filter.</p></div>`;
                 } else if (conversation) {
                     const title = escapeHtml(dmConversationTitle(conversation));
                     const intro = conversation.kind === 'group'
@@ -4314,12 +4570,26 @@
             window.sendDiscordSystemMessage(`${activeChatUsername} entered #${currentChannel}.`);
         };
 
-        window.logoutChatUser = function() {
+        window.logoutChatUser = async function() {
+            const logoutButton = document.querySelector('[onclick="window.logoutChatUser()"]');
+            if (logoutButton) logoutButton.disabled = true;
+            if (isAnonymousIdentity && currentUserId && supabaseClient) {
+                try {
+                    const { error } = await supabaseClient.from(PROFILES_TABLE).delete().eq('id', currentUserId);
+                    if (error) throw error;
+                } catch (err) {
+                    if (logoutButton) logoutButton.disabled = false;
+                    chatToast('Could not remove your anonymous profile; you are still signed in. Try again.', true);
+                    log('AUTH', 'Anonymous profile deletion failed: ' + (err.message || err), 'warn');
+                    return;
+                }
+            }
             sendTypingState(false);
             untrackPresence();
             teardownDmRealtime();
             if (typeof window.closeDmModal === 'function') window.closeDmModal();
             window.closeVerifyEmailModal();
+            window.closePasswordSetupModal();
             window.closeUserAdmin();
             dmConversations = [];
             dmMessages.clear();
@@ -4337,7 +4607,12 @@
             directoryCache.clear();
             activeChatUsername = '';
             if (supabaseClient) {
-                supabaseClient.auth.signOut().catch(() => {});
+                const { error } = await supabaseClient.auth.signOut({ scope: 'local' });
+                if (error) {
+                    chatToast('Profile removed, but sign-out failed. Reload this page to finish.', true);
+                    if (logoutButton) logoutButton.disabled = false;
+                    return;
+                }
             }
             log('AUTH', 'Signed out; reloading', 'info');
             setTimeout(() => window.location.reload(), 400);
@@ -4490,11 +4765,6 @@
             const icon = document.getElementById('soundIcon');
             if (icon) icon.innerHTML = isAudioMuted ? faIconMarkup('solid','volume-xmark','text-sm text-red-400') : faIconMarkup('solid','volume-high','text-sm');
             log('AUDIO',`Chime ${isAudioMuted?'muted':'unmuted'}`,'info');
-        };
-
-        window.insertEmoji = function(emoji) {
-            const input = document.getElementById('discordInput');
-            if (input) { input.value += emoji; input.focus(); }
         };
 
         let pendingChatImage = null;
@@ -5128,6 +5398,8 @@
                         dmSetupMissing = true;
                         renderNavigation();
                         chatToast('DM tables are not set up yet', true);
+                    } else if (isMessageRateLimitError(error)) {
+                        chatToast('You are sending messages too quickly. Wait a minute, then retry.', true);
                     } else {
                         chatToast('Message failed to send. Tap retry on the message.', true);
                     }
@@ -5156,7 +5428,9 @@
                 }
                 persistState();
                 renderDiscordMessages();
-                chatToast('Message failed to send', true);
+                chatToast(isMessageRateLimitError(error)
+                    ? 'You are sending messages too quickly. Wait a minute, then retry.'
+                    : 'Message failed to send', true);
                 log('MSG', 'Send failed: ' + (error.message || error), 'error');
             }
             return false;
@@ -5186,7 +5460,9 @@
                     upsertChatMessage(message);
                     persistState();
                     renderDiscordMessages();
-                    chatToast('Retry failed: ' + (error.message || 'network error'), true);
+                    chatToast(isMessageRateLimitError(error)
+                        ? 'You are sending messages too quickly. Wait a minute, then retry.'
+                        : 'Retry failed: ' + (error.message || 'network error'), true);
                     log('MSG', 'Retry failed: ' + (error.message || error), 'error');
                 }
                 return;
@@ -5215,7 +5491,9 @@
                 renderDiscordMessages();
                 renderDmList();
                 renderMobileStrip();
-                chatToast('Retry failed: ' + (error.message || 'network error'), true);
+                chatToast(isMessageRateLimitError(error)
+                    ? 'You are sending messages too quickly. Wait a minute, then retry.'
+                    : 'Retry failed: ' + (error.message || 'network error'), true);
                 log('DM', 'Retry failed: ' + (error.message || error), 'error');
             }
         };
@@ -5251,6 +5529,10 @@
                 const assignment = document.getElementById('frontAssignmentView');
                 const dmModal = document.getElementById('dmModal');
                 const verifyEmailModal = document.getElementById('verifyEmailModal');
+                const passwordSetupModal = document.getElementById('passwordSetupModal');
+                const emailLoginModal = document.getElementById('emailLoginModal');
+                if (passwordSetupModal && !passwordSetupModal.classList.contains('hidden')) { window.closePasswordSetupModal(); return; }
+                if (emailLoginModal && !emailLoginModal.classList.contains('hidden')) { window.closeEmailLoginModal(); return; }
                 const userAdminModal = document.getElementById('userAdminModal');
                 if (verifyEmailModal && !verifyEmailModal.classList.contains('hidden')) { window.closeVerifyEmailModal(); return; }
                 if (userAdminModal && !userAdminModal.classList.contains('hidden')) { window.closeUserAdmin(); return; }
