@@ -578,10 +578,6 @@
                     </div>
                 </div>
 
-                <div class="flex justify-center" aria-label="Cloudflare bot protection">
-                    <div id="joinTurnstileWidget"></div>
-                </div>
-
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-heading font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-indigo-500/25 flex items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" class="fa-svg"><path d="M320 32c0-9.9-4.5-19.2-12.3-25.2S289.8-1.4 280.2 1l-179.9 45C79 51.3 64 70.5 64 92.5V448H32c-17.7 0-32 14.3-32 32s14.3 32 32 32H96 288h32V480 32zM256 256c0 17.7-10.7 32-24 32s-24-14.3-24-32s10.7-32 24-32s24 14.3 24 32zm96-128h96V480c0 17.7 14.3 32 32 32h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H512V128c0-35.3-28.7-64-64-64H352v64z"/></svg>
                     <span>Enter Server List</span>
@@ -926,7 +922,6 @@
         // accounts with app_metadata.role='admin'.
         // ------------------------------------------------------------
         const SUPABASE_URL = 'https://yxvsbpssxralmqnylshv.supabase.co';
-        const TURNSTILE_SITE_KEY = '0x4AAAAAAF31cZ0UEorDe__4';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dnNicHNzeHJhbG1xbnlsc2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1ODk3MTgsImV4cCI6MjEwODE2NTcxOH0.cilnNKa2uXgdXItpyeu4vsEPtA-NjSyPWMeJsSXDpb0';
         // Normalized tables. Each message is its own row so concurrent
         // senders can never overwrite each other's messages.
@@ -1032,13 +1027,13 @@
         // email address; admins carry app_metadata.role='admin' (set only
         // server-side, see README).
         // ------------------------------------------------------------
+        let activeChatUsername = '';
         let authUser = null;            // session.user (from Supabase Auth)
         let currentUserId = '';         // auth.uid()
         let isAnonymousIdentity = true; // true until email is verified
+        let isUserAdmin = false;        // derived from trusted app_metadata.role
         let adminUiUnlocked = false;    // onering passkey = UI gate only
         let profilesHydrationTimer = null;
-        let joinCaptchaToken = '';
-        let joinCaptchaWidgetId = null;
         const directoryCache = new Map(); // uid -> {id, username, avatar_color, is_anonymous}
 
         async function refreshAuthUser() {
@@ -1061,11 +1056,9 @@
             return !!(supabaseClient && authUser && currentUserId);
         }
 
-        async function signInAnonymous(captchaToken) {
+        async function signInAnonymous() {
             if (!supabaseClient) throw new Error('Supabase is not connected');
-            const { data, error } = await supabaseClient.auth.signInAnonymously({
-                options: { captchaToken }
-            });
+            const { data, error } = await supabaseClient.auth.signInAnonymously();
             if (error) throw error;
             authUser = data && data.user;
             if (authUser) {
@@ -1074,63 +1067,6 @@
             }
             return authUser;
         }
-
-        function updateJoinCaptchaHint(message, isError) {
-            const hint = document.getElementById('chatUsernameHint');
-            if (!hint) return;
-            hint.textContent = message;
-            hint.classList.toggle('text-red-400', !!isError);
-        }
-
-        function resetJoinCaptcha() {
-            joinCaptchaToken = '';
-            if (joinCaptchaWidgetId !== null && window.turnstile) {
-                try { window.turnstile.reset(joinCaptchaWidgetId); } catch (e) {}
-            }
-        }
-
-        function initializeJoinCaptcha() {
-            const container = document.getElementById('joinTurnstileWidget');
-            if (!container || joinCaptchaWidgetId !== null) return;
-            const renderWidget = () => {
-                if (!window.turnstile || joinCaptchaWidgetId !== null) return;
-                try {
-                    joinCaptchaWidgetId = window.turnstile.render(container, {
-                        sitekey: TURNSTILE_SITE_KEY,
-                        theme: 'dark',
-                        callback: (token) => {
-                            joinCaptchaToken = token || '';
-                            updateJoinCaptchaHint('Unique among members. You can always change it later.', false);
-                        },
-                        'expired-callback': () => {
-                            joinCaptchaToken = '';
-                            updateJoinCaptchaHint('Bot check expired. Please verify again.', true);
-                        },
-                        'error-callback': () => {
-                            joinCaptchaToken = '';
-                            updateJoinCaptchaHint('Bot check unavailable. Refresh the page and try again.', true);
-                        }
-                    });
-                } catch (err) {
-                    log('AUTH', 'Turnstile could not be initialized: ' + (err.message || err), 'error');
-                    updateJoinCaptchaHint('Bot check unavailable. Refresh the page and try again.', true);
-                }
-            };
-
-            if (window.turnstile) {
-                renderWidget();
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-            script.async = true;
-            script.defer = true;
-            script.onload = renderWidget;
-            script.onerror = () => updateJoinCaptchaHint('Bot check could not load. Check your connection and refresh.', true);
-            document.head.appendChild(script);
-        }
-
-        initializeJoinCaptcha();
 
         // Boot path: a stored session restores the identity and the chat UI;
         // no session -> the join screen. Called from initSupabase and from
@@ -4333,14 +4269,8 @@
         window.joinSecretLounge = async function(e) {
             e.preventDefault();
             const userInput = document.getElementById('chatUsernameInput');
-            const hint = document.getElementById('chatUsernameHint');
             const name = (userInput.value || '').trim().slice(0, 32);
             if (!name) return;
-
-            if (!supabaseUserReady() && !joinCaptchaToken) {
-                updateJoinCaptchaHint('Complete the Cloudflare bot check before joining.', true);
-                return;
-            }
 
             document.getElementById('discordAuthScreen').classList.add('hidden');
             document.getElementById('discordChatContainer').classList.remove('hidden');
@@ -4349,12 +4279,7 @@
             // Every write is then RLS-evaluated against that identity.
             try {
                 if (!supabaseUserReady()) {
-                    const captchaToken = joinCaptchaToken;
-                    try {
-                        await signInAnonymous(captchaToken);
-                    } finally {
-                        resetJoinCaptcha();
-                    }
+                    await signInAnonymous();
                 }
                 await refreshAuthUser();
             } catch (err) {

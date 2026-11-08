@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f3efe6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e0c0a" media="(prefers-color-scheme: dark)">
+  <meta name="robots" content="noindex">
+  <title>Not found — GirtHub</title>
+  <script>
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') {
+        document.documentElement.dataset.theme = saved;
+      }
+    } catch (error) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23a63f1c'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' text-anchor='middle' fill='%23f3efe6'%3EG%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f3efe6;
+      --ink: #171512;
+      --muted: #6f685d;
+      --line: #d6cfc1;
+      --line-strong: #b8ae9d;
+      --accent: #a63f1c;
+      --hover: rgba(166, 63, 28, .06);
+      --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Noto Serif", serif;
+      --sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #0e0c0a;
+        --ink: #ece5da;
+        --muted: #a39a8d;
+        --line: #2c2722;
+        --line-strong: #453e35;
+        --accent: #e08a5f;
+        --hover: rgba(224, 138, 95, .07);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0e0c0a;
+      --ink: #ece5da;
+      --muted: #a39a8d;
+      --line: #2c2722;
+      --line-strong: #453e35;
+      --accent: #e08a5f;
+      --hover: rgba(224, 138, 95, .07);
+    }
+
+    :root[data-theme="light"] { color-scheme: light; }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--bg); -webkit-text-size-adjust: 100%; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      background-image: radial-gradient(var(--line) 0.75px, transparent 0.75px);
+      background-size: 16px 16px;
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.5;
+      font-optical-sizing: auto;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    ::selection { color: var(--ink); background: var(--hover); }
+
+    a { color: inherit; }
+
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 2px;
+    }
+
+    .page {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 720px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: clamp(28px, 5vw, 56px) clamp(20px, 5vw, 48px) 28px;
+    }
+
+    .masthead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .wordmark {
+      font-family: var(--serif);
+      font-size: 1.22rem;
+      font-weight: 600;
+      letter-spacing: -.015em;
+      text-decoration: none;
+    }
+
+    .wordmark span { color: var(--muted); }
+
+    .masthead-meta {
+      margin: 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .75rem;
+      letter-spacing: .01em;
+    }
+
+    .message {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(56px, 12vh, 120px) 0;
+    }
+
+    .code {
+      margin: 0 0 14px;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: .8rem;
+      letter-spacing: .18em;
+    }
+
+    h1 {
+      max-width: 14ch;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(2.6rem, 8vw, 4.4rem);
+      font-weight: 600;
+      line-height: 1.02;
+      letter-spacing: -.03em;
+      text-wrap: balance;
+    }
+
+    .lede {
+      max-width: 34ch;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+      text-wrap: pretty;
+    }
+
+    .home {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 36px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--line-strong);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: .8rem;
+      letter-spacing: .08em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color .15s ease, border-color .15s ease;
+    }
+
+    .home span { transition: transform .15s ease; }
+
+    @media (hover: hover) {
+      .home:hover { color: var(--accent); border-color: var(--accent); }
+      .home:hover span { transform: translate(-2px, 0); }
+    }
+
+    .footer {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .75rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <a class="wordmark" href="/">Girt<span>Hub</span></a>
+      <p class="masthead-meta">404</p>
+    </header>
+
+    <section class="message" aria-labelledby="not-found-title">
+      <p class="code" aria-hidden="true">404</p>
+      <h1 id="not-found-title">This page wandered off.</h1>
+      <p class="lede">The link may be broken, or the page may have moved.</p>
+      <a class="home" href="/">Back to the index <span aria-hidden="true">←</span></a>
+    </section>
+
+    <footer class="footer">
+      <span>© <span id="year"></span> Girt</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const root = document.documentElement;
+    if (root.dataset.theme) {
+      const color = root.dataset.theme === 'dark' ? '#0e0c0a' : '#f3efe6';
+      document.querySelectorAll('meta[name="theme-color"]').forEach(function (meta) {
+        meta.setAttribute('media', 'all');
+        meta.setAttribute('content', color);
+      });
+    }
+  </script>
+</body>
+</html>
