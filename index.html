@@ -864,7 +864,7 @@
                 </div>
                 <button type="button" onclick="window.closeEmailLoginModal()" class="chat-image-remove" title="Close email sign in" aria-label="Close email sign in">×</button>
             </div>
-            <div class="p-5 space-y-5">
+            <div class="p-5 space-y-5 bg-[#313338]">
                 <form id="emailPasswordLoginForm" onsubmit="window.submitEmailPasswordLogin(event)" class="space-y-5">
                     <div class="text-left space-y-1.5">
                         <label for="emailPasswordLoginEmail" class="block text-[11px] font-bold text-gray-400">Email address</label>
@@ -876,7 +876,8 @@
                         <input type="password" id="emailPasswordLoginPassword" required autocomplete="current-password" placeholder="Your password"
                             class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold px-3 py-3 rounded-lg transition-colors">Sign in</button>
+                    <button type="submit" class="w-full border border-indigo-400 bg-indigo-600 hover:bg-indigo-500 hover:border-indigo-300 text-white text-sm font-bold px-3 py-3 rounded-lg shadow-lg shadow-indigo-950/30 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:cursor-wait disabled:opacity-70">Sign in</button>
+                </form>
                 <p id="emailLoginHint" class="text-sm text-emerald-300 leading-relaxed hidden" role="status" aria-live="polite"></p>
             </div>
         </div>
