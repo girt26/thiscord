@@ -837,20 +837,15 @@
                         <input type="email" id="verifyEmailInput" required autocomplete="email" placeholder="you@example.com"
                             class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
                     </div>
-                    <p class="text-[10px] text-gray-500 leading-relaxed">We’ll send a six-digit code to verify this address.</p>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-colors">Send verification code</button>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">We’ll email a confirmation link. Open it to verify this address, then return here.</p>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-colors">Send confirmation link</button>
                     <button type="button" onclick="window.backToVerifyPassword()" class="w-full text-gray-300 hover:text-white text-xs py-2">Back to password</button>
                 </form>
-                <form id="verifyEmailOtpForm" onsubmit="window.submitVerifyEmailOtp(event)" class="hidden space-y-3">
-                    <div class="text-left space-y-1.5">
-                        <label for="verifyEmailOtpInput" class="block text-[11px] font-bold text-gray-400">Six-digit verification code</label>
-                        <input type="text" id="verifyEmailOtpInput" required inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="123456"
-                            class="w-full bg-[#1e1f22] border border-[#383a40] rounded-lg px-3 py-3 text-center text-white text-xl tracking-[0.35em] placeholder-gray-600 focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <p class="text-[10px] text-gray-500 leading-relaxed">Enter the code sent to <span id="verifyEmailOtpAddress" class="text-gray-300"></span>.</p>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-colors">Verify email and unlock DMs</button>
+                <div id="verifyEmailLinkPanel" class="hidden space-y-3">
+                    <p class="text-sm text-gray-300 leading-relaxed">Open the confirmation link sent to <span id="verifyEmailLinkAddress" class="font-semibold text-white"></span>. Thiscord will unlock DMs after the link confirms your email.</p>
+                    <button type="button" onclick="window.checkEmailVerificationLink()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-colors">Check verification status</button>
                     <button type="button" onclick="window.useDifferentVerifyEmail()" class="w-full text-gray-300 hover:text-white text-xs py-2">Use a different email</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -1276,52 +1271,36 @@
 
         // ------------------------------------------------------------
         // EMAIL VERIFICATION (unlocks DMs on the anonymous session)
-        // updateUser({ email, password }) sends an OTP and attaches a password
-        // to this same account; verifyOtp confirms it without changing auth.uid().
+        // updateUser({ email, password }) sends a confirmation link and attaches a password
+        // to this same account; confirming keeps the same auth.uid().
         // ------------------------------------------------------------
         window.openVerifyEmailModal = function() {
             if (!authUser) { chatToast('Join the chat first', true); return; }
             if (!isAnonymousIdentity) { chatToast('Your email is already verified'); return; }
-            const passwordForm = document.getElementById('verifyPasswordForm');
-            const form = document.getElementById('verifyEmailForm');
-            const otpForm = document.getElementById('verifyEmailOtpForm');
-            const hint = document.getElementById('verifyEmailHint');
-            const emailInput = document.getElementById('verifyEmailInput');
-            const passwordInput = document.getElementById('verifyEmailPassword');
-            const passwordConfirmInput = document.getElementById('verifyEmailPasswordConfirm');
             pendingEmailVerificationPassword = '';
-            if (passwordInput) passwordInput.value = '';
-            if (passwordConfirmInput) passwordConfirmInput.value = '';
-            if (passwordForm) passwordForm.classList.remove('hidden');
-            if (form) form.classList.add('hidden');
-            if (otpForm) otpForm.classList.add('hidden');
-            if (emailInput) { emailInput.readOnly = false; }
+            document.getElementById('verifyEmailPassword').value = '';
+            document.getElementById('verifyEmailPasswordConfirm').value = '';
+            document.getElementById('verifyPasswordForm').classList.remove('hidden');
+            document.getElementById('verifyEmailForm').classList.add('hidden');
+            document.getElementById('verifyEmailLinkPanel').classList.add('hidden');
+            document.getElementById('verifyEmailInput').readOnly = false;
+            const hint = document.getElementById('verifyEmailHint');
             if (hint) hint.classList.add('hidden');
-            const modal = document.getElementById('verifyEmailModal');
-            if (modal) modal.classList.remove('hidden');
-            if (passwordInput) setTimeout(() => passwordInput.focus(), 50);
+            document.getElementById('verifyEmailModal').classList.remove('hidden');
+            document.getElementById('verifyEmailPassword').focus();
         };
 
         window.closeVerifyEmailModal = function() {
-            const modal = document.getElementById('verifyEmailModal');
-            const passwordForm = document.getElementById('verifyPasswordForm');
-            const form = document.getElementById('verifyEmailForm');
-            const otpForm = document.getElementById('verifyEmailOtpForm');
-            const passwordInput = document.getElementById('verifyEmailPassword');
-            const passwordConfirmInput = document.getElementById('verifyEmailPasswordConfirm');
-            const emailInput = document.getElementById('verifyEmailInput');
-            const tokenInput = document.getElementById('verifyEmailOtpInput');
-            const hint = document.getElementById('verifyEmailHint');
             pendingEmailVerificationPassword = '';
-            if (passwordInput) passwordInput.value = '';
-            if (passwordConfirmInput) passwordConfirmInput.value = '';
-            if (emailInput) emailInput.readOnly = false;
-            if (tokenInput) tokenInput.value = '';
-            if (passwordForm) passwordForm.classList.remove('hidden');
-            if (form) form.classList.add('hidden');
-            if (otpForm) otpForm.classList.add('hidden');
+            document.getElementById('verifyEmailPassword').value = '';
+            document.getElementById('verifyEmailPasswordConfirm').value = '';
+            document.getElementById('verifyEmailInput').readOnly = false;
+            document.getElementById('verifyPasswordForm').classList.remove('hidden');
+            document.getElementById('verifyEmailForm').classList.add('hidden');
+            document.getElementById('verifyEmailLinkPanel').classList.add('hidden');
+            const hint = document.getElementById('verifyEmailHint');
             if (hint) { hint.textContent = ''; hint.classList.add('hidden'); }
-            if (modal) modal.classList.add('hidden');
+            document.getElementById('verifyEmailModal').classList.add('hidden');
         };
 
         window.continueVerifyEmail = function(e) {
@@ -1329,42 +1308,32 @@
             const passwordInput = document.getElementById('verifyEmailPassword');
             const confirmInput = document.getElementById('verifyEmailPasswordConfirm');
             const hint = document.getElementById('verifyEmailHint');
-            const password = String(passwordInput && passwordInput.value || '');
-            const confirmation = String(confirmInput && confirmInput.value || '');
+            const password = String(passwordInput.value || '');
             if (password.length < 8) {
                 if (hint) { hint.textContent = 'Choose a password with at least 8 characters.'; hint.classList.remove('hidden'); }
-                if (passwordInput) passwordInput.focus();
-                return;
+                passwordInput.focus(); return;
             }
-            if (password !== confirmation) {
+            if (password !== String(confirmInput.value || '')) {
                 if (hint) { hint.textContent = 'The passwords do not match.'; hint.classList.remove('hidden'); }
-                if (confirmInput) confirmInput.focus();
-                return;
+                confirmInput.focus(); return;
             }
             pendingEmailVerificationPassword = password;
-            if (passwordInput) passwordInput.value = '';
-            if (confirmInput) confirmInput.value = '';
+            passwordInput.value = '';
+            confirmInput.value = '';
             if (hint) { hint.textContent = ''; hint.classList.add('hidden'); }
-            const passwordForm = document.getElementById('verifyPasswordForm');
-            const emailForm = document.getElementById('verifyEmailForm');
-            const emailInput = document.getElementById('verifyEmailInput');
-            if (passwordForm) passwordForm.classList.add('hidden');
-            if (emailForm) emailForm.classList.remove('hidden');
-            if (emailInput) setTimeout(() => emailInput.focus(), 50);
+            document.getElementById('verifyPasswordForm').classList.add('hidden');
+            document.getElementById('verifyEmailForm').classList.remove('hidden');
+            document.getElementById('verifyEmailInput').focus();
         };
 
         window.backToVerifyPassword = function() {
-            const passwordForm = document.getElementById('verifyPasswordForm');
-            const emailForm = document.getElementById('verifyEmailForm');
-            const passwordInput = document.getElementById('verifyEmailPassword');
-            const confirmInput = document.getElementById('verifyEmailPasswordConfirm');
+            document.getElementById('verifyEmailPassword').value = pendingEmailVerificationPassword;
+            document.getElementById('verifyEmailPasswordConfirm').value = pendingEmailVerificationPassword;
+            document.getElementById('verifyPasswordForm').classList.remove('hidden');
+            document.getElementById('verifyEmailForm').classList.add('hidden');
             const hint = document.getElementById('verifyEmailHint');
-            if (passwordInput) passwordInput.value = pendingEmailVerificationPassword;
-            if (confirmInput) confirmInput.value = pendingEmailVerificationPassword;
-            if (passwordForm) passwordForm.classList.remove('hidden');
-            if (emailForm) emailForm.classList.add('hidden');
             if (hint) { hint.textContent = ''; hint.classList.add('hidden'); }
-            if (passwordInput) setTimeout(() => passwordInput.focus(), 50);
+            document.getElementById('verifyEmailPassword').focus();
         };
 
         window.submitVerifyEmail = async function(e) {
@@ -1373,79 +1342,65 @@
             const input = document.getElementById('verifyEmailInput');
             const hint = document.getElementById('verifyEmailHint');
             const form = document.getElementById('verifyEmailForm');
-            const otpForm = document.getElementById('verifyEmailOtpForm');
-            const email = String(input && input.value || '').trim();
+            const panel = document.getElementById('verifyEmailLinkPanel');
+            const email = String(input.value || '').trim();
             const password = pendingEmailVerificationPassword;
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 if (hint) { hint.textContent = 'Enter a valid email address.'; hint.classList.remove('hidden'); }
                 return;
             }
             if (password.length < 8) {
-                if (hint) { hint.textContent = 'Set a password before sending the verification code.'; hint.classList.remove('hidden'); }
-                window.backToVerifyPassword();
-                return;
+                if (hint) { hint.textContent = 'Set a password before sending the confirmation link.'; hint.classList.remove('hidden'); }
+                window.backToVerifyPassword(); return;
             }
             const button = document.querySelector('#verifyEmailForm button[type="submit"]');
             if (button) { button.disabled = true; button.textContent = 'Sending…'; }
-            if (hint) { hint.textContent = 'Sending your verification code…'; hint.classList.remove('hidden'); }
+            if (hint) { hint.textContent = 'Sending your confirmation link…'; hint.classList.remove('hidden'); }
             try {
-                const { error } = await supabaseClient.auth.updateUser({ email, password });
+                const redirectTo = /^https?:/i.test(location.href) ? location.href.split('#')[0] : undefined;
+                const options = redirectTo ? { emailRedirectTo: redirectTo } : undefined;
+                const { error } = await supabaseClient.auth.updateUser({ email, password }, options);
                 if (error) throw error;
-                if (input) input.readOnly = true;
-                const address = document.getElementById('verifyEmailOtpAddress');
-                if (address) address.textContent = email;
-                if (form) form.classList.add('hidden');
-                if (otpForm) otpForm.classList.remove('hidden');
-                if (hint) { hint.textContent = 'Check your inbox for a six-digit code.'; hint.classList.remove('hidden'); }
-                const tokenInput = document.getElementById('verifyEmailOtpInput');
-                if (tokenInput) setTimeout(() => tokenInput.focus(), 50);
-                log('AUTH', 'Email verification code sent', 'success');
-                chatToast('Verification code sent');
+                input.readOnly = true;
+                document.getElementById('verifyEmailLinkAddress').textContent = email;
+                form.classList.add('hidden');
+                panel.classList.remove('hidden');
+                if (hint) { hint.textContent = 'Confirmation link sent. Open it, then return to Thiscord.'; hint.classList.remove('hidden'); }
+                log('AUTH', 'Email confirmation link sent', 'success');
+                chatToast('Confirmation link sent');
             } catch (err) {
-                if (hint) hint.textContent = err.message || 'Could not send the verification email.';
+                if (hint) { hint.textContent = err.message || 'Could not send the confirmation email.'; hint.classList.remove('hidden'); }
                 log('AUTH', 'Email verification failed: ' + (err.message || err), 'warn');
             } finally {
-                if (button) { button.disabled = false; button.textContent = 'Email me a verification code'; }
+                if (button) { button.disabled = false; button.textContent = 'Send confirmation link'; }
             }
         };
 
-        window.submitVerifyEmailOtp = async function(e) {
-            if (e) e.preventDefault();
-            const email = String(document.getElementById('verifyEmailInput')?.value || '').trim();
-            const tokenInput = document.getElementById('verifyEmailOtpInput');
-            const token = String(tokenInput?.value || '').trim();
+        window.checkEmailVerificationLink = async function() {
+            if (!supabaseClient) return;
             const hint = document.getElementById('verifyEmailHint');
-            const button = document.querySelector('#verifyEmailOtpForm button[type="submit"]');
-            if (!supabaseClient || !email || !/^[0-9]{6}$/.test(token)) {
-                if (hint) { hint.textContent = 'Enter the six-digit code from your email.'; hint.classList.remove('hidden'); }
-                return;
-            }
-            if (button) { button.disabled = true; button.textContent = 'Verifying…'; }
+            if (hint) { hint.textContent = 'Checking confirmation status…'; hint.classList.remove('hidden'); }
             try {
-                const { error } = await supabaseClient.auth.verifyOtp({ email, token, type: 'email_change' });
-                if (error) throw error;
-                window.closeVerifyEmailModal();
-                chatToast('Email verified — direct messages unlocked');
-                log('AUTH', 'Email verified with one-time code', 'success');
+                await refreshAuthUser();
+                if (authUser && !isAnonymousIdentity) {
+                    window.closeVerifyEmailModal();
+                    refreshIdentityUi();
+                    loadDmData();
+                    chatToast('Email verified — direct messages unlocked');
+                } else if (hint) {
+                    hint.textContent = 'Not confirmed yet. Open the link from your inbox, then check again.';
+                }
             } catch (err) {
-                if (hint) { hint.textContent = 'That code is invalid or expired. Check the Change Email Address template uses {{ .Token }}, then request a new code.'; hint.classList.remove('hidden'); }
-                if (tokenInput) { tokenInput.value = ''; tokenInput.focus(); }
-                log('AUTH', 'Email verification code failed: ' + (err.message || err), 'warn');
-            } finally {
-                if (button) { button.disabled = false; button.textContent = 'Verify email and unlock DMs'; }
+                if (hint) hint.textContent = err.message || 'Could not check confirmation status.';
             }
         };
 
         window.useDifferentVerifyEmail = function() {
-            const form = document.getElementById('verifyEmailForm');
-            const otpForm = document.getElementById('verifyEmailOtpForm');
-            const emailInput = document.getElementById('verifyEmailInput');
-            const tokenInput = document.getElementById('verifyEmailOtpInput');
+            document.getElementById('verifyEmailForm').classList.remove('hidden');
+            document.getElementById('verifyEmailLinkPanel').classList.add('hidden');
+            const input = document.getElementById('verifyEmailInput');
+            if (input) { input.readOnly = false; input.focus(); }
             const hint = document.getElementById('verifyEmailHint');
-            if (form) form.classList.remove('hidden');
-            if (otpForm) otpForm.classList.add('hidden');
-            if (emailInput) { emailInput.readOnly = false; emailInput.focus(); }
-            if (tokenInput) tokenInput.value = '';
             if (hint) { hint.textContent = ''; hint.classList.add('hidden'); }
         };
 
@@ -4137,6 +4092,7 @@
                                 refreshIdentityUi();
                                 updateSidebarIdentity();
                                 if (wasAnon && !isAnonymousIdentity) {
+                                    window.closeVerifyEmailModal();
                                     chatToast('Email verified — direct messages unlocked');
                                     log('AUTH', 'Identity upgraded: email verified', 'success');
                                     dmSetupMissing = false;
@@ -4637,9 +4593,10 @@
 
             const created = await ensureMyProfile(name);
             if (!created) {
+                // Keep the chosen display name when profile persistence fails.
+                // A suffix is reserved for actual unique-name collisions in
+                // ensureMyProfile(), not transient auth/network/database errors.
                 activeChatUsername = name;
-                const suffix = Math.floor(10 + Math.random() * 90);
-                activeChatUsername = (name + '_' + suffix).slice(0, 32);
                 log('AUTH', 'Joined with fallback display name (profile write failed)', 'warn');
             }
 
@@ -4661,6 +4618,8 @@
         window.logoutChatUser = async function() {
             const logoutButton = document.querySelector('[onclick="window.logoutChatUser()"]');
             if (logoutButton) logoutButton.disabled = true;
+            const previousName = activeChatUsername;
+            const wasAnonymous = isAnonymousIdentity;
             if (isAnonymousIdentity && currentUserId && supabaseClient) {
                 try {
                     const { error } = await supabaseClient.from(PROFILES_TABLE).delete().eq('id', currentUserId);
@@ -4674,6 +4633,19 @@
             }
             sendTypingState(false);
             untrackPresence();
+            if (supabaseClient) {
+                const { error } = await supabaseClient.auth.signOut({ scope: 'local' });
+                if (error) {
+                    if (wasAnonymous && previousName) {
+                        const restored = await ensureMyProfile(previousName);
+                        if (!restored) log('AUTH', 'Could not restore the anonymous profile after sign-out failed', 'error');
+                    }
+                    chatToast('Could not sign out. You are still signed in; try again.', true);
+                    if (logoutButton) logoutButton.disabled = false;
+                    return;
+                }
+            }
+            teardownPresenceChannel();
             teardownDmRealtime();
             if (typeof window.closeDmModal === 'function') window.closeDmModal();
             window.closeVerifyEmailModal();
@@ -4694,16 +4666,10 @@
             isUserAdmin = false;
             directoryCache.clear();
             activeChatUsername = '';
-            if (supabaseClient) {
-                const { error } = await supabaseClient.auth.signOut({ scope: 'local' });
-                if (error) {
-                    chatToast('Profile removed, but sign-out failed. Reload this page to finish.', true);
-                    if (logoutButton) logoutButton.disabled = false;
-                    return;
-                }
-            }
-            log('AUTH', 'Signed out; reloading', 'info');
-            setTimeout(() => window.location.reload(), 400);
+            const usernameInput = document.getElementById('chatUsernameInput');
+            if (usernameInput) usernameInput.value = '';
+            showAuthScreen('');
+            log('AUTH', 'Signed out; returned to sign-in screen', 'info');
         };
 
         window.adminPromptAddChannel = async function() {
