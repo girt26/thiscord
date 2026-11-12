@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>try{if(sessionStorage.getItem("thiscord_front_gate_open")==="1")document.documentElement.classList.add("thiscord-front-open");}catch(e){}</script>
     <title>Seneca - Learn 2x Faster</title>
      <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAANESURBVHgBtVc9TFNRFD73FdoCr0A0MbIQHGQTcWACY01IMIENF+NgEzc1QSdIiAmJonESEnFxgcG4wOag0cQacdEF44YkNC7UJiYUC/SHtt7vvD76+vpe+370SyC97557z7nn57vnCqogOrfdTSF1isrlKIb0P1CmDfl/MT57aln/JFj5450+osAHKdBHLqCGBWWyZfKABOWLl+NzPYmKAaltt8qB6YkIne4K0L2Xu+QB0oj9Cy3R+VTMi3JgpD9EakiQR/RRa/tdhYSYIo/woVyDEJcUmRmD5BGZnKf4GxFVrL4iuZ5e76bbo2rD1ZlsiZLpou382ECYXt06SWPnwrYyLXYTSK7B3lY25snrP5YyyXRJhsHyDDQs82NmPMK/GwXKcjVK6/5amhVckdbfuNhhuTiTK/FfvfEKzUxoypfeZ+jN9yy5MgDY+nXE5bXxs0CxkXbO+DoDDsuU3C3WKUf4cAisX/16SI2gNJpEfLHJyqd9mh6P8ObmeXMiPpjsYs/pxjdDCznA8voBbaWOJPF0ynzYYwWAprwaAiTtN6n0mXS7UzgyAFjfzMuwwN3VlIKbjVT8VsYaoXMDxwYA5pL7/CNXUwVulbs2wAzNA0XyAzYARBGTpYYkQ1yxsX5aTjRWVOLYYx5xxtgMnXCwjxpWmEPgodqxYE+tyLxa38xpVRAJV+Oq8zuI6PhbZR5yERv+h4ww7KUr47Widm8Yo1eUiD5K+SZ0P1DcCKthUTc2coN5/p8aAEUgGWNohs+G6Hxv8HgMHrCjbV8G4GJ5cfMErUlaNZai2QPg/ZH+YKVTcna2plI41cPJTlr7omWtEVqSVbfgS2x1T96iQb4PnBhhK6FfKleH2vjkoON6mUBdVwQP4SaFYegFJofayZMBUI5+ALVvpRxQ22o9oAN1vvROuw/ujHbwPnawZEItmwXfZmhGrEiH5STJ2DUk6AHgxbGBtkriFpwbgFhee/6bmkEjG/t5eM7Oew0NcAqrHHAL+C9OHuG7LSfaUORb8CN5hO+2vFxcVKgQXJD5liAPQLY7abtstCfisz3LPh+nWgXYVUkj5ZQvVR+nOqLzOzESATzVPL+WmiDOIS8cLMTnzvCL9i9z31J/v/nGdAAAAABJRU5ErkJggg==">
     <!-- Tailwind CSS (compiled and inlined) -->
@@ -181,6 +182,7 @@
         #adminPurgeBtn:hover { color: #ef4444; border-color: #ef4444; background-color: rgba(185, 28, 28, .48); }
         .dm-typing { color: #a5b4fc; font-size: .64rem; font-weight: 700; }
     </style>
+    <style>html.thiscord-front-open #frontGate{display:none!important}</style>
 </head>
 <body class="flex flex-col h-screen font-sans">
 
@@ -1106,6 +1108,7 @@
         let isAnonymousIdentity = true; // true until email is verified
         let isUserAdmin = false;        // derived from trusted app_metadata.role
         let adminUiUnlocked = false;    // onering passkey = UI gate only
+        let logoutReloadPending = false;
         let pendingEmailVerificationPassword = '';
         let profilesHydrationTimer = null;
         const directoryCache = new Map(); // uid -> {id, username, avatar_color, is_anonymous}
@@ -4090,6 +4093,7 @@
                         realtime: { params: { eventsPerSecond: 20 } }
                     });
                     supabaseClient.auth.onAuthStateChange((evt, session) => {
+                        if (logoutReloadPending && !session) return;
                         if (authUser && session && session.user && session.user.id === authUser.id) {
                             const wasAnon = isAnonymousIdentity;
                             refreshAuthUser().then(() => {
@@ -4305,6 +4309,8 @@
             const gate = document.getElementById('frontGate');
             if (!gate || gate.classList.contains('hidden')) return;
             gate.classList.add('hidden');
+            try { sessionStorage.setItem('thiscord_front_gate_open', '1'); } catch (e) {}
+            document.documentElement.classList.add('thiscord-front-open');
             log('AUTH','Front gate unlocked','success');
             setTimeout(() => { const inp = document.getElementById('chatUsernameInput'); if (inp) inp.focus(); }, 150);
         };
@@ -4315,6 +4321,8 @@
             const lm = document.getElementById('logModal');
             if (lm) lm.classList.add('hidden');
             gate.classList.remove('hidden');
+            document.documentElement.classList.remove('thiscord-front-open');
+            try { sessionStorage.removeItem('thiscord_front_gate_open'); } catch (e) {}
             log('AUTH','Emergency camouflage engaged','warn');
         };
 
@@ -4638,8 +4646,10 @@
             sendTypingState(false);
             untrackPresence();
             if (supabaseClient) {
+                logoutReloadPending = true;
                 const { error } = await supabaseClient.auth.signOut({ scope: 'local' });
                 if (error) {
+                    logoutReloadPending = false;
                     if (wasAnonymous && previousName) {
                         const restored = await ensureMyProfile(previousName);
                         if (!restored) log('AUTH', 'Could not restore the anonymous profile after sign-out failed', 'error');
@@ -4672,8 +4682,8 @@
             activeChatUsername = '';
             const usernameInput = document.getElementById('chatUsernameInput');
             if (usernameInput) usernameInput.value = '';
-            showAuthScreen('');
-            log('AUTH', 'Signed out; returned to sign-in screen', 'info');
+            log('AUTH', 'Signed out; refreshing page', 'info');
+            window.location.reload();
         };
 
         window.adminPromptAddChannel = async function() {
